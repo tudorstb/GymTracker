@@ -26,7 +26,7 @@ class Application {
             e.printStackTrace();
         }
 
-        // Database
+        // Database connection (example, update it accordingly)
         String sgl = "select name from product where id=8";
         String url = "jdbc:postgresql://localhost:3306/fitDataBase";
         String username = "postgres";
@@ -55,7 +55,7 @@ class Application {
         JLabel loginLabel = new JLabel("Log in", SwingConstants.CENTER);
         loginLabel.setFont(new Font("Cooper Black", Font.BOLD, 24));
 
-        // Create labels for user and password with "Cooper Black" font
+        // Create labels for user and password
         userLabel = new JLabel("User: ", SwingConstants.RIGHT);
         userLabel.setFont(new Font("Cooper Black", Font.PLAIN, 16));
 
@@ -80,18 +80,19 @@ class Application {
         createAccountButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
         createAccountButton.setBackground(new Color(70, 130, 180));
 
-        // Add ActionListener to open a new window on button click
+        // Add ActionListener to open the "Create Account" window
         createAccountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openCreateAccountWindow(); // Call the method to open new window
+                // Open the new "Create Account" window
+                new CreateAccountWindow();
             }
         });
 
         // Use BorderLayout for the main panel
         panel.setLayout(new BorderLayout());
 
-        // Create a panel for the user and password input
+        // Create a panel for user and password input
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setOpaque(false); // Transparent panel
         GridBagConstraints gbc = new GridBagConstraints();
@@ -127,60 +128,6 @@ class Application {
         panel.add(createAccountButton, BorderLayout.SOUTH); // Add create account button at the bottom
 
         frame.revalidate(); // Refresh the frame
-    }
-
-    // Method to open a new window for "Create Account"
-    private void openCreateAccountWindow() {
-        // Create a new frame for the account creation window
-        JFrame createAccountFrame = new JFrame("Create Account");
-        createAccountFrame.setSize(400, 400);
-        createAccountFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose on close, won't affect main window
-
-        // Create a panel for user, password, and re-enter password fields
-        JPanel createAccountPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        // Create and add components for account creation
-        JLabel userLabel = new JLabel("Username:");
-        JTextField userField = new JTextField(15);
-
-        JLabel passLabel = new JLabel("Password:");
-        JPasswordField passwordField = new JPasswordField(15);
-
-        JLabel rePassLabel = new JLabel("Re-enter Password:");
-        JPasswordField rePasswordField = new JPasswordField(15);
-
-        // Add components to the create account panel
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        createAccountPanel.add(userLabel, gbc);
-        gbc.gridx = 1;
-        createAccountPanel.add(userField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        createAccountPanel.add(passLabel, gbc);
-        gbc.gridx = 1;
-        createAccountPanel.add(passwordField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        createAccountPanel.add(rePassLabel, gbc);
-        gbc.gridx = 1;
-        createAccountPanel.add(rePasswordField, gbc);
-
-        // Add a button to submit account creation
-        JButton createButton = new JButton("Create Account");
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        createAccountPanel.add(createButton, gbc);
-
-        // Add the panel to the new frame
-        createAccountFrame.add(createAccountPanel);
-        createAccountFrame.setVisible(true);
     }
 
     public static void main(String[] args) {

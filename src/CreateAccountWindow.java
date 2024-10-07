@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -18,7 +20,7 @@ public class CreateAccountWindow {
             e.printStackTrace();
         }
 
-        createAccountFrame.setSize(450, 650);
+        createAccountFrame.setSize(520, 270);
         createAccountFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose on close, won't affect main window
 
         // Use the BackgroundPanel class with the specified image path
@@ -26,7 +28,22 @@ public class CreateAccountWindow {
         createAccountPanel.setLayout(new GridBagLayout()); // Set layout for positioning components
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(2, 5, 2, 5); // Reduced space between elements
+
+        // Title label
+        JLabel titleLabel = new JLabel("Create New Account");
+        titleLabel.setFont(new Font("Cooper Black", Font.BOLD, 20)); // Set title font and style
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3; // Span all columns
+        gbc.anchor = GridBagConstraints.CENTER; // Center the title horizontally
+        gbc.weightx = 1.0; // Allow the title to take up horizontal space
+        createAccountPanel.add(titleLabel, gbc);
+
+        // Reset grid width for next components
+        gbc.gridwidth = 1; // Reset grid width for input fields
+        gbc.weighty = 1; // Allow the component to grow vertically
+        gbc.gridy = 1; // Start positioning from row 1
 
         // Create and add components for account creation with consistent font
         JLabel userLabel = createLabel("Username:");
@@ -36,35 +53,45 @@ public class CreateAccountWindow {
         JPasswordField passwordField = new JPasswordField(15);
         passwordField.setFont(userField.getFont()); // Match the font with userField
 
+        // Create a button to toggle password visibility
+        JButton togglePasswordButton = createToggleButton(passwordField);
+
         JLabel rePassLabel = createLabel("Re-enter Password:");
         JPasswordField rePasswordField = new JPasswordField(15);
         rePasswordField.setFont(userField.getFont()); // Match the font with userField
 
+        // Create a button to toggle re-enter password visibility
+        JButton toggleRePasswordButton = createToggleButton(rePasswordField);
+
         // Add components to the create account panel
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 1; // Position for username
         createAccountPanel.add(userLabel, gbc);
         gbc.gridx = 1;
         createAccountPanel.add(userField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2; // Move down for password
         createAccountPanel.add(passLabel, gbc);
         gbc.gridx = 1;
         createAccountPanel.add(passwordField, gbc);
+        gbc.gridx = 2; // Position the toggle button next to the password field
+        createAccountPanel.add(togglePasswordButton, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3; // Move down for re-enter password
         createAccountPanel.add(rePassLabel, gbc);
         gbc.gridx = 1;
         createAccountPanel.add(rePasswordField, gbc);
+        gbc.gridx = 2; // Position the toggle button next to the re-enter password field
+        createAccountPanel.add(toggleRePasswordButton, gbc);
 
-        // Add a button to submit account creation
-        JButton createButton = new JButton("Create Account");
+        // Add a button to submit account creation with new text
+        JButton createButton = new JButton("Create");
         createButton.setFont(userLabel.getFont()); // Match the font with userLabel
         gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
+        gbc.gridy = 4; // Move down one row for the create button
+        gbc.gridwidth = 3; // Make the create button span all columns
+        createButton.setHorizontalAlignment(SwingConstants.CENTER);
         createAccountPanel.add(createButton, gbc);
 
         // Add the BackgroundPanel to the frame
@@ -84,5 +111,27 @@ public class CreateAccountWindow {
         JTextField textField = new JTextField(columns);
         textField.setFont(new Font("Cooper Black", Font.PLAIN, 16)); // Use the same font as in other panels
         return textField;
+    }
+
+    // Helper method to create a toggle button for password visibility
+    private JButton createToggleButton(JPasswordField passwordField) {
+        JButton toggleButton = new JButton("Show");
+        toggleButton.setFont(new Font("Cooper Black", Font.PLAIN, 16)); // Set font style
+        toggleButton.addActionListener(new ActionListener() {
+            private boolean isVisible = false; // Track visibility state
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (isVisible) {
+                    passwordField.setEchoChar('*'); // Set back to asterisk
+                    toggleButton.setText("Show"); // Change button text to "Show"
+                } else {
+                    passwordField.setEchoChar((char) 0); // Show actual characters
+                    toggleButton.setText("Hide"); // Change button text to "Hide"
+                }
+                isVisible = !isVisible; // Toggle visibility state
+            }
+        });
+        return toggleButton;
     }
 }

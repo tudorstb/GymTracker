@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 
 public class CreateAccountWindow {
 
-    public CreateAccountWindow() {
+    public CreateAccountWindow(String backgroundImagePath) {
         // Create a new frame for the "Create Account" window
         JFrame createAccountFrame = new JFrame("Create Account");
 
@@ -18,25 +18,27 @@ public class CreateAccountWindow {
             e.printStackTrace();
         }
 
-        createAccountFrame.setSize(400, 400);
+        createAccountFrame.setSize(450, 650);
         createAccountFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose on close, won't affect main window
 
-        // Use the BackgroundPanel class for setting the background
-        BackgroundPanel createAccountPanel = new BackgroundPanel();
+        // Use the BackgroundPanel class with the specified image path
+        BackgroundPanel createAccountPanel = new BackgroundPanel(backgroundImagePath);
         createAccountPanel.setLayout(new GridBagLayout()); // Set layout for positioning components
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Create and add components for account creation
-        JLabel userLabel = new JLabel("Username:");
-        JTextField userField = new JTextField(15);
+        // Create and add components for account creation with consistent font
+        JLabel userLabel = createLabel("Username:");
+        JTextField userField = createTextField(15);
 
-        JLabel passLabel = new JLabel("Password:");
+        JLabel passLabel = createLabel("Password:");
         JPasswordField passwordField = new JPasswordField(15);
+        passwordField.setFont(userField.getFont()); // Match the font with userField
 
-        JLabel rePassLabel = new JLabel("Re-enter Password:");
+        JLabel rePassLabel = createLabel("Re-enter Password:");
         JPasswordField rePasswordField = new JPasswordField(15);
+        rePasswordField.setFont(userField.getFont()); // Match the font with userField
 
         // Add components to the create account panel
         gbc.gridx = 0;
@@ -59,6 +61,7 @@ public class CreateAccountWindow {
 
         // Add a button to submit account creation
         JButton createButton = new JButton("Create Account");
+        createButton.setFont(userLabel.getFont()); // Match the font with userLabel
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
@@ -67,5 +70,19 @@ public class CreateAccountWindow {
         // Add the BackgroundPanel to the frame
         createAccountFrame.setContentPane(createAccountPanel);
         createAccountFrame.setVisible(true);
+    }
+
+    // Helper method to create JLabel with the desired font
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Cooper Black", Font.PLAIN, 16)); // Use the same font as in other panels
+        return label;
+    }
+
+    // Helper method to create JTextField with the desired font
+    private JTextField createTextField(int columns) {
+        JTextField textField = new JTextField(columns);
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16)); // Use the same font as in other panels
+        return textField;
     }
 }

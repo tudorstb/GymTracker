@@ -27,7 +27,6 @@ class Application {
         }
 
         // Database connection (example, update it accordingly)
-        String sgl = "select name from product where id=8";
         String url = "jdbc:postgresql://localhost:3306/fitDataBase";
         String username = "postgres";
         String password = "1234";
@@ -38,7 +37,8 @@ class Application {
             System.out.println(e);
         }
 
-        panel = new BackgroundPanel(); // Use the custom panel for background image
+        // Pass the path of the background image
+        panel = new BackgroundPanel("background.jpg"); // Specify your background image path here
         frame.setContentPane(panel); // Set the content pane to the BackgroundPanel
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("GYM TRACKER");
@@ -84,8 +84,8 @@ class Application {
         createAccountButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Open the new "Create Account" window
-                new CreateAccountWindow();
+                // Open the new "Create Account" window with a specific background image
+                new CreateAccountWindow("BackgroundImageForLogIn.jpg"); // Specify your background image path here
             }
         });
 

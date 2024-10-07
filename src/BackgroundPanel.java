@@ -7,10 +7,11 @@ import javax.imageio.ImageIO;
 class BackgroundPanel extends JPanel {
     private Image backgroundImage;
 
-    public BackgroundPanel() {
+    // Updated constructor to accept a file name
+    public BackgroundPanel(String imagePath) {
         try {
-            // Load the background image
-            backgroundImage = ImageIO.read(new File("background.jpg"));
+            // Load the background image from the provided path
+            backgroundImage = ImageIO.read(new File(imagePath));
         } catch (IOException e) {
             e.printStackTrace();
         }

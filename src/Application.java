@@ -130,8 +130,4 @@ class Application {
         frame.revalidate(); // Refresh the frame
     }
 
-    public static void main(String[] args) {
-        Application app = new Application();
-        app.run();
-    }
 }

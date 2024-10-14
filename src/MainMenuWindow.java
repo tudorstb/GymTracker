@@ -26,11 +26,18 @@ public class MainMenuWindow {
         // Create Buttons with Style Matching the Log In Button
         JButton viewProfileButton = createStyledLoginButton("View Profile");
         JButton trackWorkoutButton = createStyledLoginButton("Track Workout");
+        JButton statisticsButton = createStyledLoginButton("Statistics");
         JButton logOutButton = createStyledLoginButton("Log Out");
 
         // Action for View Profile Button
         viewProfileButton.addActionListener(e -> {
             new Profile(mainMenuFrame); // Modify the existing frame for the Profile screen
+        });
+
+        // Action for Statistics Button
+        statisticsButton.addActionListener(e -> {
+            // Logic for viewing statistics can be added here
+            JOptionPane.showMessageDialog(mainMenuFrame, "Statistics button clicked!");
         });
 
         // Action for Log Out Button
@@ -39,7 +46,7 @@ public class MainMenuWindow {
             new Application().run();
         });
 
-        // Add View Profile and Track Workout Buttons to a Panel
+        // Add View Profile, Statistics, and Track Workout Buttons to a Panel
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         buttonPanel.setOpaque(false); // Transparent to show background
         GridBagConstraints gbc = new GridBagConstraints();
@@ -51,6 +58,8 @@ public class MainMenuWindow {
         gbc.gridy = 0;
         buttonPanel.add(viewProfileButton, gbc);
         gbc.gridy = 1;
+        buttonPanel.add(statisticsButton, gbc); // Added statistics button
+        gbc.gridy = 2;
         buttonPanel.add(trackWorkoutButton, gbc);
 
         mainMenuPanel.add(buttonPanel, BorderLayout.CENTER);

@@ -44,6 +44,19 @@ public class Profile {
 
         backgroundPanel.add(infoPanel, BorderLayout.CENTER);
 
+        // Edit Profile Button in Top-Right Corner
+        JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topRightPanel.setOpaque(false); // Transparent background
+
+        JButton editProfileButton = createButton("Edit Profile");
+        editProfileButton.addActionListener(e -> {
+            // Logic for editing profile can be added here
+            JOptionPane.showMessageDialog(frame, "Edit Profile button clicked!");
+        });
+
+        topRightPanel.add(editProfileButton);
+        backgroundPanel.add(topRightPanel, BorderLayout.NORTH);
+
         // Back Button
         JButton backButton = createButton("Back");
         backButton.addActionListener(e -> {

@@ -8,46 +8,55 @@ public class MainMenuWindow {
     private JFrame mainMenuFrame;
 
     public MainMenuWindow() {
-        // Create the main menu frame
-        mainMenuFrame = new JFrame("Main Menu");
-        mainMenuFrame.setSize(400, 400);
-        mainMenuFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Only close this window
+        mainMenuFrame = createFrame("Main Menu", "icon.png", 400, 400);
 
-        // Use BackgroundPanel with "pika.png" as background
         BackgroundPanel mainMenuPanel = new BackgroundPanel("background.jpg");
         mainMenuPanel.setLayout(new BoxLayout(mainMenuPanel, BoxLayout.Y_AXIS));
 
-        // Create buttons for the main menu
-        JButton viewProfileButton = new JButton("View Profile");
-        JButton trackWorkoutButton = new JButton("Track Workout");
-        JButton logOutButton = new JButton("Log Out");
+        // Buttons
+        JButton viewProfileButton = createButton("View Profile");
+        JButton trackWorkoutButton = createButton("Track Workout");
+        JButton logOutButton = createButton("Log Out");
 
+        logOutButton.addActionListener(e -> {
+            mainMenuFrame.dispose();
+            new Application().run();
+        });
+
+        // Add Buttons with Spacing
+        addButtonWithSpacing(mainMenuPanel, viewProfileButton);
+        addButtonWithSpacing(mainMenuPanel, trackWorkoutButton);
+        addButtonWithSpacing(mainMenuPanel, logOutButton);
+
+        mainMenuFrame.setContentPane(mainMenuPanel);
+        mainMenuFrame.setVisible(true);
+    }
+
+    private JFrame createFrame(String title, String iconPath, int width, int height) {
+        JFrame frame = new JFrame(title);
+        frame.setSize(width, height);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setIcon(frame, iconPath);
+        return frame;
+    }
+
+    private void setIcon(JFrame frame, String iconPath) {
         try {
-            Image icon = ImageIO.read(new File("icon.png")); // Load the icon image (make sure it's in the correct path)
-            mainMenuFrame.setIconImage(icon);
+            Image icon = ImageIO.read(new File(iconPath));
+            frame.setIconImage(icon);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        // Add action to log out button
-        logOutButton.addActionListener(e -> {
-            // Close the main menu window
-            mainMenuFrame.dispose();
-            new Application().run(); // Reopen the login screen
-        });
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        return button;
+    }
 
-        // Add some spacing between the buttons and add them to the panel
-        mainMenuPanel.add(Box.createVerticalStrut(20));
-        mainMenuPanel.add(viewProfileButton);
-        mainMenuPanel.add(Box.createVerticalStrut(20));
-        mainMenuPanel.add(trackWorkoutButton);
-        mainMenuPanel.add(Box.createVerticalStrut(20));
-        mainMenuPanel.add(logOutButton);
-
-        // Add the BackgroundPanel to the frame
-        mainMenuFrame.setContentPane(mainMenuPanel);
-
-        // Make the main menu frame visible
-        mainMenuFrame.setVisible(true);
+    private void addButtonWithSpacing(JPanel panel, JButton button) {
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(button);
     }
 }

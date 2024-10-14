@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -9,134 +8,120 @@ import java.sql.DriverManager;
 import javax.imageio.ImageIO;
 
 class Application {
-    private JLabel userLabel;
-    private JLabel passLabel;
-    private JTextField userInput;
-    private JPasswordField passwordField;
     private JFrame frame;
     private BackgroundPanel panel;
 
+    // Constructor
     public Application() {
-        frame = new JFrame();
+        frame = createFrame("GYM TRACKER", "icon.png", 340, 590);
+        panel = new BackgroundPanel("background.jpg");
+        frame.setContentPane(panel);
+    }
 
+    // Run the application
+    public void run() {
+        createUIComponents();
+        frame.setVisible(true);
+    }
+
+    // Create and setup the frame
+    private JFrame createFrame(String title, String iconPath, int width, int height) {
+        JFrame frame = new JFrame(title);
+        frame.setSize(width, height);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setIcon(frame, iconPath);
+        return frame;
+    }
+
+    // Set the application icon
+    private void setIcon(JFrame frame, String iconPath) {
         try {
-            Image icon = ImageIO.read(new File("icon.png")); // Update the path to your icon image
+            Image icon = ImageIO.read(new File(iconPath));
             frame.setIconImage(icon);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // Database connection (example, update it accordingly)
-        String url = "jdbc:postgresql://localhost:3306/fitDataBase";
-        String username = "postgres";
-        String password = "1234";
-
-        try {
-            Connection con = DriverManager.getConnection(url, username, password);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-        // Pass the path of the background image
-        panel = new BackgroundPanel("background.jpg"); // Specify your background image path here
-        frame.setContentPane(panel); // Set the content pane to the BackgroundPanel
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle("GYM TRACKER");
-        frame.setSize(340, 590);
-        frame.setVisible(true);
     }
 
-    public void run() {
-        createUIComponents(); // Create and add UI components
-    }
-
+    // Create UI Components
     private void createUIComponents() {
-        // Create a "Log in" label with "Cooper Black" font
-        JLabel loginLabel = new JLabel("Log in", SwingConstants.CENTER);
-        loginLabel.setFont(new Font("Cooper Black", Font.BOLD, 24));
-
-        // Create labels for user and password
-        userLabel = new JLabel("User: ", SwingConstants.RIGHT);
-        userLabel.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-
-        passLabel = new JLabel("Password: ", SwingConstants.RIGHT);
-        passLabel.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-
-        // Create text field for user input
-        userInput = new JTextField(10);
-        userInput.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-
-        // Create password field
-        passwordField = new JPasswordField(10);
-        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        passwordField.setEchoChar('*');
-
-        // Create "Log in" button
-        JButton loginButton = new JButton("Log in");
-        loginButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
-
-        // Action Listener for Log in Button
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Here you can add login validation logic if needed
-                new MainMenuWindow(); // Open Main Menu window when Log in is clicked
-                frame.dispose(); // Close the current window
-            }
-        });
-
-        // Create "Create Account" button
-        JButton createAccountButton = new JButton("Create Account");
-        createAccountButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
-        createAccountButton.setBackground(new Color(70, 130, 180));
-
-        // Add ActionListener to open the "Create Account" window
-        createAccountButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Open the new "Create Account" window with a specific background image
-                new CreateAccountWindow("BackgroundImageForLogIn.jpg"); // Specify your background image path here
-            }
-        });
-
-        // Use BorderLayout for the main panel
         panel.setLayout(new BorderLayout());
 
-        // Create a panel for user and password input
+        // Title Label
+        JLabel loginLabel = createLabel("Log in", 24, SwingConstants.CENTER);
+        panel.add(loginLabel, BorderLayout.NORTH);
+
+        // Input Panel
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setOpaque(false); // Transparent panel
+        inputPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Add user label and text field
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        inputPanel.add(userLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        inputPanel.add(userInput, gbc);
+        // User Input
+        JTextField userInput = createTextField(10);
+        JPasswordField passwordField = createPasswordField(10);
 
-        // Add password label and password field
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        inputPanel.add(passLabel, gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        inputPanel.add(passwordField, gbc);
+        // Add User and Password Inputs
+        addLabelAndField(inputPanel, gbc, "User:", userInput, 0);
+        addLabelAndField(inputPanel, gbc, "Password:", passwordField, 1);
 
-        // Add the login button
-        gbc.gridx = 0;
+        // Log In Button
+        JButton loginButton = createButton("Log in");
+        loginButton.addActionListener(e -> {
+            new MainMenuWindow();
+            frame.dispose();
+        });
+
         gbc.gridy = 2;
         gbc.gridwidth = 2;
-        gbc.insets = new Insets(50, 5, 5, 5);
+        gbc.insets = new Insets(20, 0, 0, 0);
         inputPanel.add(loginButton, gbc);
 
-        // Add components to the main panel
-        panel.add(loginLabel, BorderLayout.NORTH); // Add login label at the top
-        panel.add(inputPanel, BorderLayout.CENTER); // Add input panel at the center
-        panel.add(createAccountButton, BorderLayout.SOUTH); // Add create account button at the bottom
+        panel.add(inputPanel, BorderLayout.CENTER);
 
-        frame.revalidate(); // Refresh the frame
+        // Create Account Button
+        JButton createAccountButton = createButton("Create Account");
+        createAccountButton.setBackground(new Color(70, 130, 180));
+        createAccountButton.addActionListener(e -> new CreateAccountWindow("BackgroundImageForLogIn.jpg"));
+        panel.add(createAccountButton, BorderLayout.SOUTH);
+    }
+
+    // Helper to add labels and text fields
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(createLabel(labelText, 16, SwingConstants.RIGHT), gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
+    }
+
+    // Create Label Helper
+    private JLabel createLabel(String text, int fontSize, int alignment) {
+        JLabel label = new JLabel(text, alignment);
+        label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
+        return label;
+    }
+
+    // Create Button Helper
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        return button;
+    }
+
+    // Create TextField Helper
+    private JTextField createTextField(int columns) {
+        JTextField textField = new JTextField(columns);
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        return textField;
+    }
+
+    // Create PasswordField Helper
+    private JPasswordField createPasswordField(int columns) {
+        JPasswordField passwordField = new JPasswordField(columns);
+        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        passwordField.setEchoChar('*');
+        return passwordField;
     }
 }

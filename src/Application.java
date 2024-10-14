@@ -75,6 +75,16 @@ class Application {
         JButton loginButton = new JButton("Log in");
         loginButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
 
+        // Action Listener for Log in Button
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Here you can add login validation logic if needed
+                new MainMenuWindow(); // Open Main Menu window when Log in is clicked
+                frame.dispose(); // Close the current window
+            }
+        });
+
         // Create "Create Account" button
         JButton createAccountButton = new JButton("Create Account");
         createAccountButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
@@ -129,5 +139,4 @@ class Application {
 
         frame.revalidate(); // Refresh the frame
     }
-
 }

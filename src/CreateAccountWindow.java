@@ -60,6 +60,9 @@ public class CreateAccountWindow {
         buttonPanel.add(Box.createVerticalStrut(10)); // Add spacing above the button
         buttonPanel.add(createButton);
 
+        // Add action to close the window when "Create" is clicked
+        createButton.addActionListener(e -> createAccountFrame.dispose());
+
         createAccountPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 

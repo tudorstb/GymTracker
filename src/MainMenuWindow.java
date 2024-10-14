@@ -7,9 +7,19 @@ import java.io.IOException;
 public class MainMenuWindow {
     private JFrame mainMenuFrame;
 
-    public MainMenuWindow() {
-        mainMenuFrame = createFrame("Main Menu", "icon.png", 400, 400);
+    public MainMenuWindow(JFrame existingFrame) {
+        this.mainMenuFrame = existingFrame;
+        setupUI();
+    }
 
+    // To initialize from scratch or when returning from another screen
+    public MainMenuWindow() {
+        this.mainMenuFrame = createFrame("Main Menu", "icon.png", 400, 400);
+        setupUI();
+    }
+
+    // Set up the UI components
+    private void setupUI() {
         BackgroundPanel mainMenuPanel = new BackgroundPanel("background.jpg");
         mainMenuPanel.setLayout(new BorderLayout());
 
@@ -20,8 +30,7 @@ public class MainMenuWindow {
 
         // Action for View Profile Button
         viewProfileButton.addActionListener(e -> {
-            Profile profile = new Profile(); // Instantiate Profile class
-            profile.show(); // Show the Profile window
+            new Profile(mainMenuFrame); // Modify the existing frame for the Profile screen
         });
 
         // Action for Log Out Button
@@ -75,5 +84,8 @@ public class MainMenuWindow {
         button.setFocusPainted(false); // Remove focus border
         button.setAlignmentX(Component.CENTER_ALIGNMENT); // Center alignment for consistency
         return button;
+    }
+
+    public void show() {
     }
 }

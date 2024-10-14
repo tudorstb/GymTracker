@@ -1,43 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 
 public class Profile {
     private JFrame frame;
     private BackgroundPanel backgroundPanel;
 
-    // Constructor
-    public Profile() {
-        frame = createFrame("Profile", "icon.png", 340, 590);
-        backgroundPanel = new BackgroundPanel("profile.jpg");
-        frame.setContentPane(backgroundPanel);
+    // Constructor: accepts an existing JFrame to modify
+    public Profile(JFrame existingFrame) {
+        this.frame = existingFrame; // Reuse the existing frame
+        this.backgroundPanel = new BackgroundPanel("background.jpg");
         createUIComponents();
-    }
-
-    // Run the Profile window
-    public void show() {
-        frame.setVisible(true);
-    }
-
-    // Create and setup the frame
-    private JFrame createFrame(String title, String iconPath, int width, int height) {
-        JFrame frame = new JFrame(title);
-        frame.setSize(width, height);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only the profile window
-        setIcon(frame, iconPath);
-        return frame;
-    }
-
-    // Set the application icon
-    private void setIcon(JFrame frame, String iconPath) {
-        try {
-            Image icon = ImageIO.read(new File(iconPath));
-            frame.setIconImage(icon);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        frame.setContentPane(backgroundPanel); // Set new content
+        frame.revalidate(); // Refresh the frame
+        frame.repaint();
     }
 
     // Create UI Components
@@ -71,7 +46,10 @@ public class Profile {
 
         // Back Button
         JButton backButton = createButton("Back");
-        backButton.addActionListener(e -> frame.dispose()); // Close the profile window
+        backButton.addActionListener(e -> {
+            MainMenuWindow mainMenu = new MainMenuWindow(frame); // Go back to Main Menu
+            mainMenu.show();
+        });
         backgroundPanel.add(backButton, BorderLayout.SOUTH);
     }
 

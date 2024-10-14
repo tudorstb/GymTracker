@@ -39,7 +39,7 @@ public class MainMenuWindow {
             new Application().run();
         });
 
-        // Add Buttons to Panel using GridBagLayout for Consistency
+        // Add View Profile and Track Workout Buttons to a Panel
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         buttonPanel.setOpaque(false); // Transparent to show background
         GridBagConstraints gbc = new GridBagConstraints();
@@ -52,10 +52,14 @@ public class MainMenuWindow {
         buttonPanel.add(viewProfileButton, gbc);
         gbc.gridy = 1;
         buttonPanel.add(trackWorkoutButton, gbc);
-        gbc.gridy = 2;
-        buttonPanel.add(logOutButton, gbc);
 
         mainMenuPanel.add(buttonPanel, BorderLayout.CENTER);
+
+        // Create a panel to hold the Log Out button and position it at the bottom-right
+        JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomRightPanel.setOpaque(false); // Transparent background
+        bottomRightPanel.add(logOutButton);
+        mainMenuPanel.add(bottomRightPanel, BorderLayout.SOUTH);
 
         mainMenuFrame.setContentPane(mainMenuPanel);
         mainMenuFrame.setVisible(true);
@@ -87,5 +91,6 @@ public class MainMenuWindow {
     }
 
     public void show() {
+        mainMenuFrame.setVisible(true);
     }
 }

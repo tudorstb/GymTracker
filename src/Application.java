@@ -5,17 +5,40 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.imageio.ImageIO;
 
 class Application {
     private JFrame frame;
     private BackgroundPanel panel;
+    private Connection connection;
 
     // Constructor
     public Application() {
         frame = createFrame("GYM TRACKER", "icon.png", 340, 590);
         panel = new BackgroundPanel("background.jpg");
         frame.setContentPane(panel);
+
+        // Initialize database connection
+        initializeDatabaseConnection();
+    }
+
+    // Initialize the database connection
+    private void initializeDatabaseConnection() {
+        try {
+            // Update with your database URL, user, and password
+            String url = "jdbc:postgresql://localhost:5432/fit_database";
+            String user = "gymuser";
+            String password = "password123";
+
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Database connected successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to connect to the database.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     // Run the application
@@ -69,8 +92,14 @@ class Application {
         // Log In Button
         JButton loginButton = createButton("Log in");
         loginButton.addActionListener(e -> {
-            new MainMenuWindow();
-            frame.dispose();
+            String username = userInput.getText();
+            String password = new String(passwordField.getPassword());
+            if (authenticateUser(username, password)) {
+                new MainMenuWindow();
+                frame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         gbc.gridy = 2;
@@ -85,6 +114,20 @@ class Application {
         createAccountButton.setBackground(new Color(70, 130, 180));
         createAccountButton.addActionListener(e -> new CreateAccountWindow("BackgroundImageForLogIn.jpg"));
         panel.add(createAccountButton, BorderLayout.SOUTH);
+    }
+
+    // Method to authenticate user from the database
+    private boolean authenticateUser(String username, String password) {
+        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next(); // Return true if a match is found
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     // Helper to add labels and text fields

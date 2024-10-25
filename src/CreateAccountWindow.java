@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CreateAccountWindow {
     private JFrame createAccountFrame;
@@ -111,8 +113,13 @@ public class CreateAccountWindow {
             String gender = (String) genderComboBox.getSelectedItem();
 
             // Validate input
-            if (username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() || email.isEmpty() || password.isEmpty() || !password.equals(rePassword)) {
-                JOptionPane.showMessageDialog(createAccountFrame, "Please fill all fields correctly.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            if (username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() || email.isEmpty() || password.isEmpty() ) {
+                JOptionPane.showMessageDialog(createAccountFrame, "Please fill all fields ", "Input Error", JOptionPane.ERROR_MESSAGE);
+            } else if (!password.equals(rePassword))
+            {
+                JOptionPane.showMessageDialog(createAccountFrame, "The passwords don;t match ", "Input Error", JOptionPane.ERROR_MESSAGE);
+            } else if (isEmailValid(email) == false) {
+                JOptionPane.showMessageDialog(createAccountFrame, "The email is not valid ", "Input Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 createUser(username, firstName, lastName, Integer.parseInt(ageText), email, password, gender);
             }
@@ -217,4 +224,20 @@ public class CreateAccountWindow {
         button.setBackground(new Color(70, 130, 180));
         return button;
     }
+    public boolean isEmailValid(String email) {
+        // Reghex for testing an email address
+        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        System.out.println(email);
+
+
+
+        if (matcher.matches()) {
+            return true; // email is good
+        } else {
+            return false;
+        }
+    }
+
 }

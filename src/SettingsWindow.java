@@ -130,6 +130,7 @@ public class SettingsWindow {
             return;
         }
 
+        // Check if the email format is valid before updating
         if (!isEmailValid(newEmail)) {
             JOptionPane.showMessageDialog(frame, "Invalid email format.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -175,11 +176,13 @@ public class SettingsWindow {
     }
 
     public boolean isEmailValid(String email) {
+        // Regex for testing an email address
         String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
+        System.out.println(email); // Log the email for debugging
 
-        return matcher.matches();
+        return matcher.matches(); // Return true if email matches regex, false otherwise
     }
 
     private JButton createButton(String text) {

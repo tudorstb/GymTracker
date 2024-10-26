@@ -93,33 +93,38 @@ public class SettingsWindow {
 
         backgroundPanel.add(infoPanel, BorderLayout.CENTER);
 
-        // Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
+
+        // Save Button
         JButton saveButton = createButton("Save");
         saveButton.addActionListener(e -> saveChanges());
+        JPanel savePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        savePanel.setOpaque(false);
+        savePanel.add(saveButton);
+        buttonPanel.add(savePanel, BorderLayout.NORTH);
 
+        // Back Button
         JButton backButton = createButton("Back");
         backButton.addActionListener(e -> {
             new Profile(frame); // Go back to Profile
         });
+        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        backPanel.setOpaque(false);
+        backPanel.add(backButton);
+        buttonPanel.add(backPanel, BorderLayout.SOUTH);
 
-        buttonPanel.add(saveButton);
         backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomRightPanel.setOpaque(false);
-        bottomRightPanel.add(backButton);
-        backgroundPanel.add(bottomRightPanel, BorderLayout.SOUTH);
     }
 
     private void saveChanges() {
-        String newUsername = usernameField.getText();
-        String newEmail = emailField.getText();
+        String newUsername = usernameField.getText().trim();
+        String newEmail = emailField.getText().trim();
         int newAge;
 
         try {
-            newAge = Integer.parseInt(ageField.getText());
+            newAge = Integer.parseInt(ageField.getText().trim());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(frame, "Age must be a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -143,14 +148,21 @@ public class SettingsWindow {
                 statement.setString(4, currentUsername);
                 statement.executeUpdate();
 
+                // Update name.txt if username changes
                 if (!newUsername.equals(currentUsername)) {
                     rewriteUsernameInFile(newUsername);
                 }
+
+                // Update current values
+                currentUsername = newUsername;
+                currentEmail = newEmail;
+                currentAge = newAge;
 
                 JOptionPane.showMessageDialog(frame, "Changes saved successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to save changes.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -95,7 +97,8 @@ class Application {
             String username = userInput.getText();
             String password = new String(passwordField.getPassword());
             if (authenticateUser(username, password)) {
-                new MainMenuWindow();
+                saveUsernameToFile(username);
+                new MainMenuWindow(); // Call MainMenuWindow without parameters
                 frame.dispose();
             } else {
                 JOptionPane.showMessageDialog(frame, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
@@ -128,6 +131,16 @@ class Application {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // Save username to a file
+    private void saveUsernameToFile(String username) {
+        File file = new File("name.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(username); // Write the username to the file
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Helper to add labels and text fields

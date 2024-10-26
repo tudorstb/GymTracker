@@ -1,21 +1,64 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.imageio.ImageIO;
 
 public class Profile {
     private JFrame frame;
     private BackgroundPanel backgroundPanel;
+    private String username;
+    private String email;
 
     // Constructor: accepts an existing JFrame to modify
     public Profile(JFrame existingFrame) {
         this.frame = existingFrame; // Reuse the existing frame
         this.backgroundPanel = new BackgroundPanel("background.jpg");
+
+        // Load username from file and fetch email from the database
+        loadUserData();
+
         createUIComponents();
         frame.setContentPane(backgroundPanel); // Set new content
         frame.revalidate(); // Refresh the frame
         frame.repaint();
+    }
+
+    // Load username from name.txt and fetch the corresponding email from the database
+    private void loadUserData() {
+        // Read username from name.txt
+        try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
+            username = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to load user data.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Fetch email from the database
+        String url = "jdbc:postgresql://localhost:5432/fit_database";
+        String dbUser = "gymuser";
+        String dbPassword = "password123";
+
+        try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword)) {
+            String query = "SELECT email FROM users WHERE username = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, username);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    email = resultSet.getString("email");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Create UI Components
@@ -33,9 +76,9 @@ public class Profile {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Profile information (example: Name, Email, etc.)
-        JLabel nameLabel = createLabel("Name: John Doe", 16, SwingConstants.LEFT);
-        JLabel emailLabel = createLabel("Email: john@example.com", 16, SwingConstants.LEFT);
+        // Profile information
+        JLabel nameLabel = createLabel("Name: " + (username != null ? username : "Unknown"), 16, SwingConstants.LEFT);
+        JLabel emailLabel = createLabel("Email: " + (email != null ? email : "Unknown"), 16, SwingConstants.LEFT);
 
         // Add profile information to the info panel
         gbc.gridx = 0;
@@ -84,7 +127,6 @@ public class Profile {
     }
 
     // Create Icon Button Helper
-    // Create Icon Button Helper
     private JButton createIconButton(String iconPath) {
         JButton button = new JButton();
         try {
@@ -121,5 +163,4 @@ public class Profile {
         }
         return button;
     }
-
 }

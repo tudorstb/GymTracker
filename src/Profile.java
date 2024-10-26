@@ -16,13 +16,14 @@ public class Profile {
     private BackgroundPanel backgroundPanel;
     private String username;
     private String email;
+    private int age;
 
     // Constructor: accepts an existing JFrame to modify
     public Profile(JFrame existingFrame) {
         this.frame = existingFrame; // Reuse the existing frame
         this.backgroundPanel = new BackgroundPanel("background.jpg");
 
-        // Load username from file and fetch email from the database
+        // Load username from file and fetch email & age from the database
         loadUserData();
 
         createUIComponents();
@@ -31,7 +32,7 @@ public class Profile {
         frame.repaint();
     }
 
-    // Load username from name.txt and fetch the corresponding email from the database
+    // Load username from name.txt and fetch the corresponding email and age from the database
     private void loadUserData() {
         // Read username from name.txt
         try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
@@ -42,18 +43,19 @@ public class Profile {
             return;
         }
 
-        // Fetch email from the database
+        // Fetch email and age from the database
         String url = "jdbc:postgresql://localhost:5432/fit_database";
         String dbUser = "gymuser";
         String dbPassword = "password123";
 
         try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword)) {
-            String query = "SELECT email FROM users WHERE username = ?";
+            String query = "SELECT email, age FROM users WHERE username = ?";
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, username);
                 ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     email = resultSet.getString("email");
+                    age = resultSet.getInt("age");
                 }
             }
         } catch (SQLException e) {
@@ -79,6 +81,7 @@ public class Profile {
         // Profile information
         JLabel nameLabel = createLabel("Name: " + (username != null ? username : "Unknown"), 16, SwingConstants.LEFT);
         JLabel emailLabel = createLabel("Email: " + (email != null ? email : "Unknown"), 16, SwingConstants.LEFT);
+        JLabel ageLabel = createLabel("Age: " + (age > 0 ? age : "Unknown"), 16, SwingConstants.LEFT);
 
         // Add profile information to the info panel
         gbc.gridx = 0;
@@ -87,6 +90,9 @@ public class Profile {
 
         gbc.gridy = 1;
         infoPanel.add(emailLabel, gbc);
+
+        gbc.gridy = 2;
+        infoPanel.add(ageLabel, gbc);
 
         backgroundPanel.add(infoPanel, BorderLayout.CENTER);
 

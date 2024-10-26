@@ -102,8 +102,8 @@ public class Profile {
 
         JButton editProfileButton = createIconButton("settingsButton.png");
         editProfileButton.addActionListener(e -> {
-            // Logic for editing profile can be added here
-            JOptionPane.showMessageDialog(frame, "Edit Profile button clicked!");
+            // Change frame to Settings screen
+            new SettingsWindow(frame); // Replace current content with settings screen
         });
 
         topRightPanel.add(editProfileButton);

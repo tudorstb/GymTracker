@@ -74,44 +74,18 @@ public class SettingsWindow {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Username field
-        usernameField = new JTextField(currentUsername, 15);
-        emailField = new JTextField(currentEmail, 15);
-        ageField = new JTextField(String.valueOf(currentAge), 15);
+        // Username, Email, Age, Height, and Weight Fields
+        usernameField = createTextField(currentUsername, 15);
+        emailField = createTextField(currentEmail, 15);
+        ageField = createTextField(String.valueOf(currentAge), 15);
+        heightField = createTextField(currentHeight != null ? String.valueOf(currentHeight) : "", 15);
+        weightField = createTextField(currentWeight != null ? String.valueOf(currentWeight) : "", 15);
 
-        // Height and Weight fields
-        heightField = new JTextField(currentHeight != null ? String.valueOf(currentHeight) : "", 15);
-        weightField = new JTextField(currentWeight != null ? String.valueOf(currentWeight) : "", 15);
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        infoPanel.add(new JLabel("Username:"), gbc);
-        gbc.gridx = 1;
-        infoPanel.add(usernameField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        infoPanel.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1;
-        infoPanel.add(emailField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        infoPanel.add(new JLabel("Age:"), gbc);
-        gbc.gridx = 1;
-        infoPanel.add(ageField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        infoPanel.add(new JLabel("Height (cm):"), gbc);
-        gbc.gridx = 1;
-        infoPanel.add(heightField, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        infoPanel.add(new JLabel("Weight (kg):"), gbc);
-        gbc.gridx = 1;
-        infoPanel.add(weightField, gbc);
+        addLabelAndField(infoPanel, gbc, "Username:", usernameField, 0);
+        addLabelAndField(infoPanel, gbc, "Email:", emailField, 1);
+        addLabelAndField(infoPanel, gbc, "Age:", ageField, 2);
+        addLabelAndField(infoPanel, gbc, "Height (cm):", heightField, 3);
+        addLabelAndField(infoPanel, gbc, "Weight (kg):", weightField, 4);
 
         backgroundPanel.add(infoPanel, BorderLayout.CENTER);
 
@@ -129,9 +103,7 @@ public class SettingsWindow {
 
         // Back Button
         JButton backButton = createButton("Back");
-        backButton.addActionListener(e -> {
-            new Profile(frame); // Go back to Profile
-        });
+        backButton.addActionListener(e -> new Profile(frame));
         JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         backPanel.setOpaque(false);
         backPanel.add(backButton);
@@ -147,7 +119,6 @@ public class SettingsWindow {
         Double newHeight = null;
         Double newWeight = null;
 
-        // Validate age input
         try {
             newAge = Integer.parseInt(ageField.getText().trim());
             if (newAge < 0) {
@@ -159,7 +130,6 @@ public class SettingsWindow {
             return;
         }
 
-        // Validate height and weight inputs
         try {
             if (!heightField.getText().trim().isEmpty()) {
                 newHeight = Double.parseDouble(heightField.getText().trim());
@@ -180,7 +150,6 @@ public class SettingsWindow {
             return;
         }
 
-        // Check if the email format is valid before updating
         if (!isEmailValid(newEmail)) {
             JOptionPane.showMessageDialog(frame, "Invalid email format.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -196,25 +165,17 @@ public class SettingsWindow {
                 statement.setString(1, newUsername);
                 statement.setString(2, newEmail);
                 statement.setInt(3, newAge);
-                if (newHeight != null) {
-                    statement.setDouble(4, newHeight);
-                } else {
-                    statement.setNull(4, java.sql.Types.DOUBLE);
-                }
-                if (newWeight != null) {
-                    statement.setDouble(5, newWeight);
-                } else {
-                    statement.setNull(5, java.sql.Types.DOUBLE);
-                }
+                if (newHeight != null) statement.setDouble(4, newHeight);
+                else statement.setNull(4, java.sql.Types.DOUBLE);
+                if (newWeight != null) statement.setDouble(5, newWeight);
+                else statement.setNull(5, java.sql.Types.DOUBLE);
                 statement.setString(6, currentUsername);
                 statement.executeUpdate();
 
-                // Update name.txt if username changes
                 if (!newUsername.equals(currentUsername)) {
                     rewriteUsernameInFile(newUsername);
                 }
 
-                // Update current values
                 currentUsername = newUsername;
                 currentEmail = newEmail;
                 currentAge = newAge;
@@ -238,18 +199,29 @@ public class SettingsWindow {
     }
 
     public boolean isEmailValid(String email) {
-        // Regex for testing an email address
         String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
-        System.out.println(email); // Log the email for debugging
-
-        return matcher.matches(); // Return true if email matches regex, false otherwise
+        return matcher.matches();
     }
 
     private JButton createButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 16));
         return button;
+    }
+
+    private JTextField createTextField(String text, int columns) {
+        JTextField textField = new JTextField(text, columns);
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        return textField;
+    }
+
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(new JLabel(labelText), gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
     }
 }

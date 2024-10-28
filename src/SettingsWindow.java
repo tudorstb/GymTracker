@@ -220,7 +220,13 @@ public class SettingsWindow {
     private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
-        panel.add(new JLabel(labelText), gbc);
+
+        // Create label with the same style as the text fields and set color to orange
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        label.setForeground(Color.decode("#FFA500")); // Set color to orange
+
+        panel.add(label, gbc);
         gbc.gridx = 1;
         panel.add(field, gbc);
     }

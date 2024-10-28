@@ -122,6 +122,7 @@ public class Profile {
     private JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
+        label.setForeground(new Color(0xFFA500)); // Set text color to orange
         return label;
     }
 
@@ -129,6 +130,7 @@ public class Profile {
     private JButton createButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        button.setForeground(Color.BLACK); // Set button text color to black
         return button;
     }
 

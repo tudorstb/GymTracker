@@ -36,8 +36,7 @@ public class MainMenuWindow {
 
         // Action for Statistics Button
         statisticsButton.addActionListener(e -> {
-            // Logic for viewing statistics can be added here
-            JOptionPane.showMessageDialog(mainMenuFrame, "Statistics button clicked!");
+            new Statistics(mainMenuFrame); // Modify the existing frame for the Statistics screen
         });
 
         // Action for Log Out Button

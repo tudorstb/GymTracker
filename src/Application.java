@@ -133,7 +133,6 @@ class Application {
         return false;
     }
 
-    // Save username to a file
     private void saveUsernameToFile(String username) {
         File file = new File("name.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
@@ -152,28 +151,24 @@ class Application {
         panel.add(field, gbc);
     }
 
-    // Create Label Helper
     private JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
         return label;
     }
 
-    // Create Button Helper
     private JButton createButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 16));
         return button;
     }
 
-    // Create TextField Helper
     private JTextField createTextField(int columns) {
         JTextField textField = new JTextField(columns);
         textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
         return textField;
     }
 
-    // Create PasswordField Helper
     private JPasswordField createPasswordField(int columns) {
         JPasswordField passwordField = new JPasswordField(columns);
         passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));

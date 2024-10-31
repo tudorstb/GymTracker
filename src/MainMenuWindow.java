@@ -12,22 +12,22 @@ public class MainMenuWindow {
         setupUI();
     }
 
-    // To initialize from scratch or when returning from another screen
+    // re-open initialize when returning from another screen
     public MainMenuWindow() {
         this.mainMenuFrame = createFrame("Main Menu", "icon.png", 400, 400);
         setupUI();
     }
 
-    // Set up the UI components
+    // Set up the UI comp
     private void setupUI() {
         BackgroundPanel mainMenuPanel = new BackgroundPanel("background.jpg");
         mainMenuPanel.setLayout(new BorderLayout());
 
-        // Create Buttons with Style Matching the Log In Button
-        JButton viewProfileButton = createStyledLoginButton("View Profile");
-        JButton trackWorkoutButton = createStyledLoginButton("Track Workout");
-        JButton statisticsButton = createStyledLoginButton("Statistics");
-        JButton logOutButton = createStyledLoginButton("Log Out");
+        // Create Buttons
+        JButton viewProfileButton = createStyledMenuButton("View Profile");
+        JButton trackWorkoutButton = createStyledMenuButton("Track Workout");
+        JButton statisticsButton = createStyledMenuButton("Statistics");
+        JButton logOutButton = createStyledMenuButton("Log Out");
 
         // Action for View Profile Button
         viewProfileButton.addActionListener(e -> {
@@ -90,7 +90,7 @@ public class MainMenuWindow {
         }
     }
 
-    private JButton createStyledLoginButton(String text) {
+    private JButton createStyledMenuButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 16));
         button.setFocusPainted(false); // Remove focus border

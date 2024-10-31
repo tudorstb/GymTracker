@@ -19,8 +19,8 @@ public class SettingsWindow {
     private String currentUsername;
     private String currentEmail;
     private int currentAge;
-    private Double currentHeight; // Nullable height
-    private Double currentWeight; // Nullable weight
+    private Double currentHeight; // can be null
+    private Double currentWeight; // can be null
 
     public SettingsWindow(JFrame existingFrame) {
         this.frame = existingFrame; // Reuse existing frame
@@ -224,7 +224,7 @@ public class SettingsWindow {
         // Create label with the same style as the text fields and set color to orange
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        label.setForeground(Color.decode("#FFA500")); // Set color to orange
+        label.setForeground(Color.decode("#FFA500")); // orange
 
         panel.add(label, gbc);
         gbc.gridx = 1;

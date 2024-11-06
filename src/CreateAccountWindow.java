@@ -202,90 +202,100 @@ public class CreateAccountWindow {
 
     // Helper method to validate the password
     private boolean isPasswordValid(String password) {
-        if (password.length() < 8) {
-            return false;
-        }
-        boolean hasNumber = password.chars().anyMatch(Character::isDigit);
-        return hasNumber;
+        return password.length() >= 8 && password.matches(".*\\d.*");
     }
 
-    // Create and setup the frame
-    private JFrame createFrame(String title, String iconPath, int width, int height) {
-        JFrame frame = new JFrame(title);
-        frame.setSize(width, height);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        try {
-            frame.setIconImage(ImageIO.read(new File(iconPath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return frame;
+    // Helper method to validate the email format
+    private boolean isEmailValid(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 
-    // Helper method to create a text field
-    private JTextField createTextField(int columns) {
-        return new JTextField(columns);
+    // Method to create a JTextField with a specified length
+    private JTextField createTextField(int length) {
+        JTextField textField = new JTextField(length);
+        textField.setFont(new Font("Arial", Font.PLAIN, 14));
+        return textField;
     }
 
-    // Helper method to create a password field
-    private JPasswordField createPasswordField(int columns) {
-        return new JPasswordField(columns);
+    // Method to create a JPasswordField with a specified length
+    private JPasswordField createPasswordField(int length) {
+        JPasswordField passwordField = new JPasswordField(length);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
+        return passwordField;
     }
 
-    // Helper method to create a toggle button for password visibility
+    // Method to create a toggle button for password visibility
     private JButton createToggleButton(JPasswordField passwordField) {
         JButton toggleButton = new JButton("Show");
+        toggleButton.setFont(new Font("Arial", Font.PLAIN, 12));
         toggleButton.addActionListener(e -> {
-            if (passwordField.getEchoChar() == '\u2022') {
+            if (passwordField.echoCharIsSet()) {
                 passwordField.setEchoChar((char) 0);
                 toggleButton.setText("Hide");
             } else {
-                passwordField.setEchoChar('\u2022');
+                passwordField.setEchoChar('*');
                 toggleButton.setText("Show");
             }
         });
         return toggleButton;
     }
 
-    // Helper method to add labels and fields to the panel
-    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
-        JLabel label = new JLabel(labelText);
+    // Method to add a label and text field to the input panel
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int gridy) {
         gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(label, gbc);
+        gbc.gridy = gridy;
+        panel.add(new JLabel(labelText), gbc);
+
         gbc.gridx = 1;
+        gbc.gridy = gridy;
         panel.add(field, gbc);
     }
 
-    // Helper method to add labels, fields, and buttons (for password visibility) to the panel
-    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, JButton button, int row) {
-        JLabel label = new JLabel(labelText);
+    // Method to add a label, text field, and toggle button for password fields
+    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JPasswordField passwordField, JButton toggleButton, int gridy) {
         gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(label, gbc);
+        gbc.gridy = gridy;
+        panel.add(new JLabel(labelText), gbc);
+
         gbc.gridx = 1;
-        panel.add(field, gbc);
+        gbc.gridy = gridy;
+        panel.add(passwordField, gbc);
+
         gbc.gridx = 2;
-        panel.add(button, gbc);
+        gbc.gridy = gridy;
+        panel.add(toggleButton, gbc);
     }
 
-    // Helper method to create a button
+    // Method to create a JButton
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBackground(new Color(0, 150, 255));
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(150, 40));
         return button;
     }
 
-    // Email validation method
-    private boolean isEmailValid(String email) {
-        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
+    // Method to create the JFrame
+    private JFrame createFrame(String title, String iconPath, int width, int height) {
+        JFrame frame = new JFrame(title);
+        frame.setSize(width, height);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);  // Center the frame
+        frame.setUndecorated(true);  // Remove window border (title bar, minimize, maximize)
+        try {
+            frame.setIconImage(ImageIO.read(new File(iconPath)));  // Set icon image
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return frame;
     }
 
-    // Exception class for negative age
-    class NegativeAgeException extends Exception {
+    // Custom exception for negative age
+    private static class NegativeAgeException extends Exception {
         public NegativeAgeException(String message) {
             super(message);
         }

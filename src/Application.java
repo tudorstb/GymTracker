@@ -144,7 +144,7 @@ class Application {
         // Create Account Button
         JButton createAccountButton = createButton("Create Account");
         createAccountButton.setBackground(new Color(70, 130, 180));
-        createAccountButton.addActionListener(e -> new CreateAccountWindow("BackgroundImageForLogIn.jpg"));
+        createAccountButton.addActionListener(e -> new CreateAccountWindow("BackgroundImageForLogIn.png"));
         panel.add(createAccountButton, BorderLayout.SOUTH);
     }
 

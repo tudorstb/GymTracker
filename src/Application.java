@@ -33,7 +33,7 @@ class Application {
 
     // Constructor
     public Application() {
-        frame = createFrame("GYM TRACKER", "icon.png", 340, 590);
+        frame = createFrame("GYM TRACKER", "icon.png", 880, 590);
         panel = new BackgroundPanel("background.jpg");
         frame.setContentPane(panel);
 

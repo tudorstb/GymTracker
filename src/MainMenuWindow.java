@@ -12,13 +12,13 @@ public class MainMenuWindow {
         setupUI();
     }
 
-    // re-open initialize when returning from another screen
+    // Re-open initialize when returning from another screen
     public MainMenuWindow() {
-        this.mainMenuFrame = createFrame("Main Menu", "icon.png", 400, 400);
+        this.mainMenuFrame = createFrame("Main Menu", "icon.png", 880, 590);
         setupUI();
     }
 
-    // Set up the UI comp
+    // Set up the UI components
     private void setupUI() {
         BackgroundPanel mainMenuPanel = new BackgroundPanel("background.jpg");
         mainMenuPanel.setLayout(new BorderLayout());
@@ -69,18 +69,23 @@ public class MainMenuWindow {
         bottomRightPanel.add(logOutButton);
         mainMenuPanel.add(bottomRightPanel, BorderLayout.SOUTH);
 
+        // Set content and make the frame visible
         mainMenuFrame.setContentPane(mainMenuPanel);
         mainMenuFrame.setVisible(true);
+        mainMenuFrame.setLocationRelativeTo(null);  // Center the window
     }
 
+    // Create and setup frame
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
         frame.setSize(width, height);
+        frame.setUndecorated(true);  // Remove title bar and system buttons (close, maximize, etc.)
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setIcon(frame, iconPath);
         return frame;
     }
 
+    // Set icon for the frame
     private void setIcon(JFrame frame, String iconPath) {
         try {
             Image icon = ImageIO.read(new File(iconPath));
@@ -90,6 +95,7 @@ public class MainMenuWindow {
         }
     }
 
+    // Create and style menu buttons
     private JButton createStyledMenuButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 16));
@@ -98,6 +104,7 @@ public class MainMenuWindow {
         return button;
     }
 
+    // Show the main menu frame
     public void show() {
         mainMenuFrame.setVisible(true);
     }

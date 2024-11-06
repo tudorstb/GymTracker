@@ -61,12 +61,14 @@ class Application {
     public void run() {
         createUIComponents();
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null); // Center the frame on the screen
     }
 
     // Create and setup the frame
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
         frame.setSize(width, height);
+        frame.setUndecorated(true);  // Remove title bar and system buttons
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setIcon(frame, iconPath);
         return frame;

@@ -10,6 +10,13 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Custom exception for negative age
+class NegativeAgeException extends Exception {
+    public NegativeAgeException(String message) {
+        super(message);
+    }
+}
+
 public class CreateAccountWindow {
     private JFrame createAccountFrame;
     private BackgroundPanel createAccountPanel;
@@ -53,10 +60,10 @@ public class CreateAccountWindow {
 
         // Center Panel for input fields
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setOpaque(false); // Transparent background to show main background image
+        inputPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5); // Consistent spacing
+        gbc.insets = new Insets(5, 5, 5, 5);
 
         // Input Fields
         JTextField usernameField = createTextField(15);
@@ -98,7 +105,7 @@ public class CreateAccountWindow {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
         JButton createButton = createButton("Create");
-        buttonPanel.add(Box.createVerticalStrut(10)); // Add spacing above the button
+        buttonPanel.add(Box.createVerticalStrut(10));
         buttonPanel.add(createButton);
 
         // Add action to create account
@@ -112,16 +119,25 @@ public class CreateAccountWindow {
             String rePassword = new String(rePasswordField.getPassword());
             String gender = (String) genderComboBox.getSelectedItem();
 
-            // Validate input
-            if (username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() || email.isEmpty() || password.isEmpty() ) {
-                JOptionPane.showMessageDialog(createAccountFrame, "Please fill all fields ", "Input Error", JOptionPane.ERROR_MESSAGE);
-            } else if (!password.equals(rePassword))
-            {
-                JOptionPane.showMessageDialog(createAccountFrame, "The passwords don;t match ", "Input Error", JOptionPane.ERROR_MESSAGE);
-            } else if (isEmailValid(email) == false) {
-                JOptionPane.showMessageDialog(createAccountFrame, "The email is not valid ", "Input Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                createUser(username, firstName, lastName, Integer.parseInt(ageText), email, password, gender);
+            try {
+                // Validate input
+                if (username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                    JOptionPane.showMessageDialog(createAccountFrame, "Please fill all fields.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                } else if (!password.equals(rePassword)) {
+                    JOptionPane.showMessageDialog(createAccountFrame, "The passwords don't match.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                } else if (!isEmailValid(email)) {
+                    JOptionPane.showMessageDialog(createAccountFrame, "The email is not valid.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    int age = Integer.parseInt(ageText);
+                    if (age < 0) {
+                        throw new NegativeAgeException("Age cannot be negative.");
+                    }
+                    createUser(username, firstName, lastName, age, email, password, gender);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(createAccountFrame, "Age must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            } catch (NegativeAgeException ex) {
+                JOptionPane.showMessageDialog(createAccountFrame, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -148,7 +164,7 @@ public class CreateAccountWindow {
         }
     }
 
-    // Create and setup the frame
+    // Helper methods below remain unchanged...
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
         frame.setSize(width, height);
@@ -157,7 +173,6 @@ public class CreateAccountWindow {
         return frame;
     }
 
-    // Set the frame icon
     private void setIcon(JFrame frame, String iconPath) {
         try {
             Image icon = ImageIO.read(new File(iconPath));
@@ -167,7 +182,6 @@ public class CreateAccountWindow {
         }
     }
 
-    // Helper method to add labels and fields
     private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -176,28 +190,24 @@ public class CreateAccountWindow {
         panel.add(field, gbc);
     }
 
-    // Helper method to add labels, fields, and toggle buttons
     private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, JButton button, int row) {
         addLabelAndField(panel, gbc, labelText, field, row);
         gbc.gridx = 2;
         panel.add(button, gbc);
     }
 
-    // Create Label Helper
     private JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
         return label;
     }
 
-    // Create TextField Helper
     private JTextField createTextField(int columns) {
         JTextField textField = new JTextField(columns);
         textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
         return textField;
     }
 
-    // Create PasswordField Helper
     private JPasswordField createPasswordField(int columns) {
         JPasswordField passwordField = new JPasswordField(columns);
         passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
@@ -205,39 +215,34 @@ public class CreateAccountWindow {
         return passwordField;
     }
 
-    // Create Toggle Button for Password Visibility
     private JButton createToggleButton(JPasswordField passwordField) {
         JButton toggleButton = createButton("Show");
-        toggleButton.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        toggleButton.addActionListener(e -> {
-            boolean isVisible = passwordField.getEchoChar() == (char) 0;
-            passwordField.setEchoChar(isVisible ? '*' : (char) 0);
-            toggleButton.setText(isVisible ? "Show" : "Hide");
-        });
+        toggleButton.setPreferredSize(new Dimension(100, 30));
+        toggleButton.addActionListener(e -> togglePasswordVisibility(passwordField, toggleButton));
         return toggleButton;
     }
 
-    // Create Button Helper
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
-        button.setBackground(new Color(70, 130, 180));
+        button.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        button.setFocusPainted(false);
         return button;
     }
-    public boolean isEmailValid(String email) {
-        // Reghex for testing an email address
-        String emailRegex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        Matcher matcher = pattern.matcher(email);
-        System.out.println(email);
 
-
-
-        if (matcher.matches()) {
-            return true; // email is good
+    private void togglePasswordVisibility(JPasswordField passwordField, JButton toggleButton) {
+        if (passwordField.getEchoChar() == '*') {
+            passwordField.setEchoChar((char) 0);
+            toggleButton.setText("Hide");
         } else {
-            return false;
+            passwordField.setEchoChar('*');
+            toggleButton.setText("Show");
         }
     }
 
+    private boolean isEmailValid(String email) {
+        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
 }

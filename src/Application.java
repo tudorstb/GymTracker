@@ -12,6 +12,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.imageio.ImageIO;
 
+// Custom exception for missing username
+class UsernameMissingException extends Exception {
+    public UsernameMissingException(String message) {
+        super(message);
+    }
+}
+
+// Custom exception for missing password
+class PasswordMissingException extends Exception {
+    public PasswordMissingException(String message) {
+        super(message);
+    }
+}
+
 class Application {
     private JFrame frame;
     private BackgroundPanel panel;
@@ -96,12 +110,27 @@ class Application {
         loginButton.addActionListener(e -> {
             String username = userInput.getText();
             String password = new String(passwordField.getPassword());
-            if (authenticateUser(username, password)) {
-                saveUsernameToFile(username);
-                new MainMenuWindow(); // Call MainMenuWindow without parameters
-                frame.dispose();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+
+            try {
+                // Check if username or password is missing
+                if (username.isEmpty()) {
+                    throw new UsernameMissingException("Username is missing.");
+                }
+                if (password.isEmpty()) {
+                    throw new PasswordMissingException("Password is missing.");
+                }
+
+                if (authenticateUser(username, password)) {
+                    saveUsernameToFile(username);
+                    new MainMenuWindow(); // Call MainMenuWindow without parameters
+                    frame.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (UsernameMissingException ex) {
+                JOptionPane.showMessageDialog(frame, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
+            } catch (PasswordMissingException ex) {
+                JOptionPane.showMessageDialog(frame, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
             }
         });
 

@@ -96,11 +96,31 @@ public class CreateAccountWindow {
         // Create Button Panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 
-        JButton createButton = createButton("Create");
-        buttonPanel.add(Box.createVerticalStrut(10));
+        // Create Account Button (left side) with blue color
+        JButton createButton = createButton("Create", Color.BLUE);
         buttonPanel.add(createButton);
+        buttonPanel.add(Box.createHorizontalStrut(10));
+
+        // Cancel Button (right side)
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setFont(new Font("Arial", Font.BOLD, 16));
+        cancelButton.setBackground(new Color(255, 50, 50));
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setPreferredSize(new Dimension(150, 30));
+        cancelButton.addActionListener(e -> createAccountFrame.dispose());  // Close the window when clicked
+
+        // Create a panel for cancel button to align it to the right
+        JPanel cancelButtonPanel = new JPanel();
+        cancelButtonPanel.setOpaque(false);
+        cancelButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        cancelButtonPanel.add(cancelButton);
+
+        // Add the cancel button panel to the buttonPanel (right side)
+        buttonPanel.add(cancelButtonPanel);
+
+        createAccountPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add action to create account
         createButton.addActionListener(e -> {
@@ -136,8 +156,6 @@ public class CreateAccountWindow {
                 JOptionPane.showMessageDialog(createAccountFrame, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
             }
         });
-
-        createAccountPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     // Create a new user in the database
@@ -200,102 +218,103 @@ public class CreateAccountWindow {
         }
     }
 
-    // Helper method to validate the password
+    // Validate the password strength
     private boolean isPasswordValid(String password) {
         return password.length() >= 8 && password.matches(".*\\d.*");
     }
 
-    // Helper method to validate the email format
+    // Validate the email format
     private boolean isEmailValid(String email) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        Pattern pattern = Pattern.compile(emailRegex);
+        Pattern pattern = Pattern.compile("^(.+)@(.+)$");
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
 
-    // Method to create a JTextField with a specified length
-    private JTextField createTextField(int length) {
-        JTextField textField = new JTextField(length);
-        textField.setFont(new Font("Arial", Font.PLAIN, 14));
+    // Create a JLabel and JTextField, and add them to the GridBagLayout
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+
+        gbc.gridx = 1;
+        panel.add(field, gbc);
+    }
+
+    // Create a JLabel, JTextField, and a JButton for toggling the password visibility
+    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JPasswordField passwordField, JButton toggleButton, int row) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+
+        gbc.gridx = 1;
+        panel.add(passwordField, gbc);
+
+        gbc.gridx = 2;
+        panel.add(toggleButton, gbc);
+    }
+
+    // Create a JTextField with the specified columns
+    private JTextField createTextField(int columns) {
+        JTextField textField = new JTextField(columns);
+        textField.setFont(new Font("Arial", Font.PLAIN, 16));
         return textField;
     }
 
-    // Method to create a JPasswordField with a specified length
-    private JPasswordField createPasswordField(int length) {
-        JPasswordField passwordField = new JPasswordField(length);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
+    // Create a JPasswordField with the specified columns
+    private JPasswordField createPasswordField(int columns) {
+        JPasswordField passwordField = new JPasswordField(columns);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
         return passwordField;
     }
 
-    // Method to create a toggle button for password visibility
+    // Create a button to toggle password visibility
     private JButton createToggleButton(JPasswordField passwordField) {
         JButton toggleButton = new JButton("Show");
-        toggleButton.setFont(new Font("Arial", Font.PLAIN, 12));
+        toggleButton.setFont(new Font("Arial", Font.BOLD, 14));
         toggleButton.addActionListener(e -> {
-            if (passwordField.echoCharIsSet()) {
-                passwordField.setEchoChar((char) 0);
-                toggleButton.setText("Hide");
-            } else {
+            if (passwordField.getEchoChar() == '\u0000') {
                 passwordField.setEchoChar('*');
                 toggleButton.setText("Show");
+            } else {
+                passwordField.setEchoChar('\u0000');
+                toggleButton.setText("Hide");
             }
         });
         return toggleButton;
     }
 
-    // Method to add a label and text field to the input panel
-    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int gridy) {
-        gbc.gridx = 0;
-        gbc.gridy = gridy;
-        panel.add(new JLabel(labelText), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = gridy;
-        panel.add(field, gbc);
-    }
-
-    // Method to add a label, text field, and toggle button for password fields
-    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JPasswordField passwordField, JButton toggleButton, int gridy) {
-        gbc.gridx = 0;
-        gbc.gridy = gridy;
-        panel.add(new JLabel(labelText), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = gridy;
-        panel.add(passwordField, gbc);
-
-        gbc.gridx = 2;
-        gbc.gridy = gridy;
-        panel.add(toggleButton, gbc);
-    }
-
-    // Method to create a JButton
-    private JButton createButton(String text) {
+    // Create a JButton with the specified text and background color
+    private JButton createButton(String text, Color color) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBackground(new Color(0, 150, 255));
+        button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setPreferredSize(new Dimension(150, 40));
         return button;
     }
 
-    // Method to create the JFrame
+    // Create the main frame
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
-        frame.setSize(width, height);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);  // Center the frame
-        frame.setUndecorated(true);  // Remove window border (title bar, minimize, maximize)
+        frame.setUndecorated(true);  // Removes title bar and window buttons
         try {
-            frame.setIconImage(ImageIO.read(new File(iconPath)));  // Set icon image
+            frame.setIconImage(ImageIO.read(new File(iconPath)));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        frame.setSize(width, height);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
         return frame;
     }
 
-    // Custom exception for negative age
-    private static class NegativeAgeException extends Exception {
+    // Custom exception to handle negative age values
+    class NegativeAgeException extends Exception {
         public NegativeAgeException(String message) {
             super(message);
         }

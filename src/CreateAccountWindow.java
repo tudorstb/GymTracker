@@ -6,6 +6,7 @@ import javax.imageio.ImageIO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -121,7 +122,7 @@ public class CreateAccountWindow {
                 } else if (!isEmailValid(email)) {
                     JOptionPane.showMessageDialog(createAccountFrame, "The email is not valid.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 } else if (!isPasswordValid(password)) {
-                    JOptionPane.showMessageDialog(createAccountFrame, "Password does not meet the requirements ,You need at least 8 elemens and a number.", "Input Error", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(createAccountFrame, "Password does not meet the requirements ,You need at least 8 elements and a number.", "Input Error", JOptionPane.WARNING_MESSAGE);
                 } else {
                     int age = Integer.parseInt(ageText);
                     if (age < 0) {
@@ -141,6 +142,18 @@ public class CreateAccountWindow {
 
     // Create a new user in the database
     private void createUser(String username, String firstName, String lastName, int age, String email, String password, String gender) {
+        // Check if username or email already exists in the database
+        if (isUsernameTaken(username)) {
+            JOptionPane.showMessageDialog(createAccountFrame, "Username is already taken. Please choose a different username.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;  // Stop the account creation process
+        }
+
+        if (isEmailTaken(email)) {
+            JOptionPane.showMessageDialog(createAccountFrame, "Email is already associated with another account. Please use a different email.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;  // Stop the account creation process
+        }
+
+        // If no conflicts, proceed to insert the new user
         String query = "INSERT INTO users (username, first_name, last_name, age, email, password, gender) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, username);
@@ -159,6 +172,34 @@ public class CreateAccountWindow {
         }
     }
 
+    // Check if the username already exists in the database
+    private boolean isUsernameTaken(String username) {
+        String query = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1) > 0;  // Returns true if the username exists
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Check if the email already exists in the database
+    private boolean isEmailTaken(String email) {
+        String query = "SELECT COUNT(*) FROM users WHERE email = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1) > 0;  // Returns true if the email exists
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Helper method to validate the password
     private boolean isPasswordValid(String password) {
         if (password.length() < 8) {
@@ -172,64 +213,26 @@ public class CreateAccountWindow {
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
         frame.setSize(width, height);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setIcon(frame, iconPath);
-        return frame;
-    }
-
-    // Set the frame icon
-    private void setIcon(JFrame frame, String iconPath) {
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         try {
-            Image icon = ImageIO.read(new File(iconPath));
-            frame.setIconImage(icon);
+            frame.setIconImage(ImageIO.read(new File(iconPath)));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return frame;
     }
 
-    // Helper method to add labels and fields
-    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(createLabel(labelText, 16, SwingConstants.RIGHT), gbc);
-        gbc.gridx = 1;
-        panel.add(field, gbc);
-    }
-
-    // Helper method to add labels, fields, and toggle buttons
-    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, JButton button, int row) {
-        addLabelAndField(panel, gbc, labelText, field, row);
-        gbc.gridx = 2;
-        panel.add(button, gbc);
-    }
-
-    // Create Label Helper
-    private JLabel createLabel(String text, int fontSize, int alignment) {
-        JLabel label = new JLabel(text, alignment);
-        label.setFont(new Font("Cooper Black", Font.BOLD, fontSize));
-        return label;
-    }
-
-    // Create Button Helper
-    private JButton createButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.PLAIN, 14));
-        return button;
-    }
-
-    // Helper to create a password field
-    private JPasswordField createPasswordField(int columns) {
-        JPasswordField passwordField = new JPasswordField(columns);
-        return passwordField;
-    }
-
-    // Helper to create a text field
+    // Helper method to create a text field
     private JTextField createTextField(int columns) {
-        JTextField textField = new JTextField(columns);
-        return textField;
+        return new JTextField(columns);
     }
 
-    // Helper to create toggle button for password visibility
+    // Helper method to create a password field
+    private JPasswordField createPasswordField(int columns) {
+        return new JPasswordField(columns);
+    }
+
+    // Helper method to create a toggle button for password visibility
     private JButton createToggleButton(JPasswordField passwordField) {
         JButton toggleButton = new JButton("Show");
         toggleButton.addActionListener(e -> {
@@ -244,23 +247,47 @@ public class CreateAccountWindow {
         return toggleButton;
     }
 
-    // Helper method to validate email format
+    // Helper method to add labels and fields to the panel
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
+        JLabel label = new JLabel(labelText);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
+    }
+
+    // Helper method to add labels, fields, and buttons (for password visibility) to the panel
+    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, JButton button, int row) {
+        JLabel label = new JLabel(labelText);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
+        gbc.gridx = 2;
+        panel.add(button, gbc);
+    }
+
+    // Helper method to create a button
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        return button;
+    }
+
+    // Email validation method
     private boolean isEmailValid(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-        Pattern pattern = Pattern.compile(emailRegex);
+        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
 
-    // Custom Exception for negative age
-    private static class NegativeAgeException extends Exception {
+    // Exception class for negative age
+    class NegativeAgeException extends Exception {
         public NegativeAgeException(String message) {
             super(message);
         }
-    }
-
-    // Main method for testing
-    public static void main(String[] args) {
-        new CreateAccountWindow("background.png");
     }
 }

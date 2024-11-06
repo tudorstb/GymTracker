@@ -10,13 +10,6 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// Custom exception for negative age
-class NegativeAgeException extends Exception {
-    public NegativeAgeException(String message) {
-        super(message);
-    }
-}
-
 public class CreateAccountWindow {
     private JFrame createAccountFrame;
     private BackgroundPanel createAccountPanel;
@@ -127,6 +120,8 @@ public class CreateAccountWindow {
                     JOptionPane.showMessageDialog(createAccountFrame, "The passwords don't match.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 } else if (!isEmailValid(email)) {
                     JOptionPane.showMessageDialog(createAccountFrame, "The email is not valid.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                } else if (!isPasswordValid(password)) {
+                    JOptionPane.showMessageDialog(createAccountFrame, "Password does not meet the requirements ,You need at least 8 elemens and a number.", "Input Error", JOptionPane.WARNING_MESSAGE);
                 } else {
                     int age = Integer.parseInt(ageText);
                     if (age < 0) {
@@ -164,7 +159,16 @@ public class CreateAccountWindow {
         }
     }
 
-    // Helper methods below remain unchanged...
+    // Helper method to validate the password
+    private boolean isPasswordValid(String password) {
+        if (password.length() < 8) {
+            return false;
+        }
+        boolean hasNumber = password.chars().anyMatch(Character::isDigit);
+        return hasNumber;
+    }
+
+    // Create and setup the frame
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
         frame.setSize(width, height);
@@ -173,6 +177,7 @@ public class CreateAccountWindow {
         return frame;
     }
 
+    // Set the frame icon
     private void setIcon(JFrame frame, String iconPath) {
         try {
             Image icon = ImageIO.read(new File(iconPath));
@@ -182,6 +187,7 @@ public class CreateAccountWindow {
         }
     }
 
+    // Helper method to add labels and fields
     private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -190,59 +196,71 @@ public class CreateAccountWindow {
         panel.add(field, gbc);
     }
 
+    // Helper method to add labels, fields, and toggle buttons
     private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, JButton button, int row) {
         addLabelAndField(panel, gbc, labelText, field, row);
         gbc.gridx = 2;
         panel.add(button, gbc);
     }
 
+    // Create Label Helper
     private JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
-        label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
+        label.setFont(new Font("Cooper Black", Font.BOLD, fontSize));
         return label;
     }
 
-    private JTextField createTextField(int columns) {
-        JTextField textField = new JTextField(columns);
-        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        return textField;
-    }
-
-    private JPasswordField createPasswordField(int columns) {
-        JPasswordField passwordField = new JPasswordField(columns);
-        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        passwordField.setEchoChar('*');
-        return passwordField;
-    }
-
-    private JButton createToggleButton(JPasswordField passwordField) {
-        JButton toggleButton = createButton("Show");
-        toggleButton.setPreferredSize(new Dimension(100, 30));
-        toggleButton.addActionListener(e -> togglePasswordVisibility(passwordField, toggleButton));
-        return toggleButton;
-    }
-
+    // Create Button Helper
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        button.setFocusPainted(false);
+        button.setFont(new Font("Cooper Black", Font.PLAIN, 14));
         return button;
     }
 
-    private void togglePasswordVisibility(JPasswordField passwordField, JButton toggleButton) {
-        if (passwordField.getEchoChar() == '*') {
-            passwordField.setEchoChar((char) 0);
-            toggleButton.setText("Hide");
-        } else {
-            passwordField.setEchoChar('*');
-            toggleButton.setText("Show");
-        }
+    // Helper to create a password field
+    private JPasswordField createPasswordField(int columns) {
+        JPasswordField passwordField = new JPasswordField(columns);
+        return passwordField;
     }
 
+    // Helper to create a text field
+    private JTextField createTextField(int columns) {
+        JTextField textField = new JTextField(columns);
+        return textField;
+    }
+
+    // Helper to create toggle button for password visibility
+    private JButton createToggleButton(JPasswordField passwordField) {
+        JButton toggleButton = new JButton("Show");
+        toggleButton.addActionListener(e -> {
+            if (passwordField.getEchoChar() == '\u2022') {
+                passwordField.setEchoChar((char) 0);
+                toggleButton.setText("Hide");
+            } else {
+                passwordField.setEchoChar('\u2022');
+                toggleButton.setText("Show");
+            }
+        });
+        return toggleButton;
+    }
+
+    // Helper method to validate email format
     private boolean isEmailValid(String email) {
-        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    // Custom Exception for negative age
+    private static class NegativeAgeException extends Exception {
+        public NegativeAgeException(String message) {
+            super(message);
+        }
+    }
+
+    // Main method for testing
+    public static void main(String[] args) {
+        new CreateAccountWindow("background.png");
     }
 }

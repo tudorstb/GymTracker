@@ -108,7 +108,7 @@ public class CreateAccountWindow {
         cancelButton.setFont(new Font("Arial", Font.BOLD, 16));
         cancelButton.setBackground(new Color(255, 50, 50));
         cancelButton.setForeground(Color.WHITE);
-        cancelButton.setPreferredSize(new Dimension(150, 30));
+        cancelButton.setPreferredSize(new Dimension(150, 32));
         cancelButton.addActionListener(e -> createAccountFrame.dispose());  // Close the window when clicked
 
         // Create a panel for cancel button to align it to the right

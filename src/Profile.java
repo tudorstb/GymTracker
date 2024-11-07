@@ -122,7 +122,6 @@ public class Profile {
     private JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
-        label.setForeground(new Color(0xFFA500)); // Set text color to orange
         return label;
     }
 

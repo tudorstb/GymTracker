@@ -224,7 +224,6 @@ public class SettingsWindow {
         // Create label with the same style as the text fields and set color to orange
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        label.setForeground(Color.decode("#FFA500")); // orange
 
         panel.add(label, gbc);
         gbc.gridx = 1;

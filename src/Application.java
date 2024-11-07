@@ -88,9 +88,21 @@ class Application {
     private void createUIComponents() {
         panel.setLayout(new BorderLayout());
 
+        // Title Panel with Exit Button
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setOpaque(false); // To maintain background visibility
+
         // Title Label
         JLabel loginLabel = createLabel("Log in", 24, SwingConstants.CENTER);
-        panel.add(loginLabel, BorderLayout.NORTH);
+        titlePanel.add(loginLabel, BorderLayout.CENTER);
+
+        // Exit Button
+        JButton exitButton = createButton("Exit");
+        exitButton.setBackground(new Color(178, 34, 34)); // Red color for emphasis
+        exitButton.addActionListener(e -> System.exit(0)); // Exit the program when clicked
+        titlePanel.add(exitButton, BorderLayout.EAST); // Align exit button to the right
+
+        panel.add(titlePanel, BorderLayout.NORTH);
 
         // Input Panel
         JPanel inputPanel = new JPanel(new GridBagLayout());

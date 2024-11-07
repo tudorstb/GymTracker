@@ -79,9 +79,9 @@ public class Profile {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Profile information
-        JLabel nameLabel = createLabel("Name: " + (username != null ? username : "Unknown"), 16, SwingConstants.LEFT);
-        JLabel emailLabel = createLabel("Email: " + (email != null ? email : "Unknown"), 16, SwingConstants.LEFT);
-        JLabel ageLabel = createLabel("Age: " + (age > 0 ? age : "Unknown"), 16, SwingConstants.LEFT);
+        JLabel nameLabel = createLabel("Name: " + (username != null ? username : "Unknown"), 21, SwingConstants.LEFT);
+        JLabel emailLabel = createLabel("Email: " + (email != null ? email : "Unknown"), 21, SwingConstants.LEFT);
+        JLabel ageLabel = createLabel("Age: " + (age > 0 ? age : "Unknown"), 21, SwingConstants.LEFT);
 
         // Add profile information to the info panel
         gbc.gridx = 0;
@@ -128,7 +128,7 @@ public class Profile {
     // Create Button Helper
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 21));
         button.setForeground(Color.BLACK); // Set button text color to black
         return button;
     }

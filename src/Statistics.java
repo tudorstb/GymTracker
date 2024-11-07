@@ -91,8 +91,8 @@ public class Statistics {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Display statistics
-        JLabel totalWorkoutsLabel = createLabel("Total Workouts: " + totalWorkouts, 16, SwingConstants.LEFT);
-        JLabel averageDurationLabel = createLabel("Average Workout Duration: " + (averageWorkoutDuration > 0 ? String.format("%.2f", averageWorkoutDuration) + " minutes" : "No workouts yet"), 16, SwingConstants.LEFT);
+        JLabel totalWorkoutsLabel = createLabel("Total Workouts: " + totalWorkouts, 21, SwingConstants.LEFT);
+        JLabel averageDurationLabel = createLabel("Average Workout Duration: " + (averageWorkoutDuration > 0 ? String.format("%.2f", averageWorkoutDuration) + " minutes" : "No workouts yet"), 21, SwingConstants.LEFT);
 
         // Add statistics to the info panel
         gbc.gridx = 0;
@@ -123,7 +123,7 @@ public class Statistics {
     // Create Button Helper
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 21));
         button.setForeground(Color.BLACK); // Set button text color to black
         return button;
     }

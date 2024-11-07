@@ -189,7 +189,7 @@ class Application {
     private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
-        panel.add(createLabel(labelText, 16, SwingConstants.RIGHT), gbc);
+        panel.add(createLabel(labelText, 21, SwingConstants.RIGHT), gbc);
         gbc.gridx = 1;
         panel.add(field, gbc);
     }
@@ -202,19 +202,19 @@ class Application {
 
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 21));
         return button;
     }
 
     private JTextField createTextField(int columns) {
         JTextField textField = new JTextField(columns);
-        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 21));
         return textField;
     }
 
     private JPasswordField createPasswordField(int columns) {
         JPasswordField passwordField = new JPasswordField(columns);
-        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 21));
         passwordField.setEchoChar('*');
         return passwordField;
     }

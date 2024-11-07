@@ -207,13 +207,13 @@ public class SettingsWindow {
 
     private JButton createButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 21));
         return button;
     }
 
     private JTextField createTextField(String text, int columns) {
         JTextField textField = new JTextField(text, columns);
-        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 21));
         return textField;
     }
 
@@ -223,7 +223,7 @@ public class SettingsWindow {
 
         // Create label with the same style as the text fields and set color to orange
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        label.setFont(new Font("Cooper Black", Font.PLAIN, 21));
 
         panel.add(label, gbc);
         gbc.gridx = 1;

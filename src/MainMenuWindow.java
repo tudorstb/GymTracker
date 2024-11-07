@@ -98,7 +98,7 @@ public class MainMenuWindow {
     // Create and style menu buttons
     private JButton createStyledMenuButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 26));
         button.setFocusPainted(false); // Remove focus border
         button.setAlignmentX(Component.CENTER_ALIGNMENT); // Center alignment for consistency
         return button;

@@ -100,15 +100,16 @@ public class CreateAccountWindow {
 
         // Create Account Button (left side) with blue color
         JButton createButton = createButton("Create", Color.BLUE);
+        createButton.setPreferredSize(new Dimension(150, 28));
         buttonPanel.add(createButton);
         buttonPanel.add(Box.createHorizontalStrut(10));
 
         // Cancel Button (right side)
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(new Font("Arial", Font.BOLD, 16));
+        cancelButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
         cancelButton.setBackground(new Color(255, 50, 50));
         cancelButton.setForeground(Color.WHITE);
-        cancelButton.setPreferredSize(new Dimension(150, 32));
+        cancelButton.setPreferredSize(new Dimension(150, 28));
         cancelButton.addActionListener(e -> createAccountFrame.dispose());  // Close the window when clicked
 
         // Create a panel for cancel button to align it to the right
@@ -233,7 +234,7 @@ public class CreateAccountWindow {
     // Create a JLabel and JTextField, and add them to the GridBagLayout
     private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Arial", Font.PLAIN, 16));
+        label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
         gbc.gridx = 0;
         gbc.gridy = row;
         panel.add(label, gbc);
@@ -245,7 +246,7 @@ public class CreateAccountWindow {
     // Create a JLabel, JTextField, and a JButton for toggling the password visibility
     private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JPasswordField passwordField, JButton toggleButton, int row) {
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Arial", Font.PLAIN, 16));
+        label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
 
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -261,21 +262,21 @@ public class CreateAccountWindow {
     // Create a JTextField with the specified columns
     private JTextField createTextField(int columns) {
         JTextField textField = new JTextField(columns);
-        textField.setFont(new Font("Arial", Font.PLAIN, 16));
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
         return textField;
     }
 
     // Create a JPasswordField with the specified columns
     private JPasswordField createPasswordField(int columns) {
         JPasswordField passwordField = new JPasswordField(columns);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
         return passwordField;
     }
 
     // Create a button to toggle password visibility
     private JButton createToggleButton(JPasswordField passwordField) {
         JButton toggleButton = new JButton("Show");
-        toggleButton.setFont(new Font("Arial", Font.BOLD, 14));
+        toggleButton.setFont(new Font("Cooper Black", Font.BOLD, 14));
         toggleButton.addActionListener(e -> {
             if (passwordField.getEchoChar() == '\u0000') {
                 passwordField.setEchoChar('*');
@@ -291,7 +292,7 @@ public class CreateAccountWindow {
     // Create a JButton with the specified text and background color
     private JButton createButton(String text, Color color) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 16));
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setPreferredSize(new Dimension(150, 40));

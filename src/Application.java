@@ -12,24 +12,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.imageio.ImageIO;
 
-// Custom exception for missing username
-class UsernameMissingException extends Exception {
-    public UsernameMissingException(String message) {
-        super(message);
-    }
-}
-
-// Custom exception for missing password
-class PasswordMissingException extends Exception {
-    public PasswordMissingException(String message) {
-        super(message);
-    }
-}
-
 class Application {
     private JFrame frame;
     private BackgroundPanel panel;
     private Connection connection;
+
+    // Custom exception for missing username
+    public class UsernameMissingException extends Exception {
+        public UsernameMissingException(String message) {
+            super(message);
+        }
+    }
+
+    // Custom exception for missing password
+    public class PasswordMissingException extends Exception {
+        public PasswordMissingException(String message) {
+            super(message);
+        }
+    }
 
     // Constructor
     public Application() {

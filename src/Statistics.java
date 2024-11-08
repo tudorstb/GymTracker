@@ -1,36 +1,48 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.imageio.ImageIO;
 
-public class Statistics {
+public class Statistics extends JPanel {
+    private Image backgroundImage;
     private JFrame frame;
-    private BackgroundPanel backgroundPanel;
     private String username;
     private int totalWorkouts;
     private double averageWorkoutDuration;
 
     // Constructor: accepts an existing JFrame to modify
     public Statistics(JFrame existingFrame) {
-        this.frame = existingFrame; // Reuse the existing frame
-        this.backgroundPanel = new BackgroundPanel("background.jpg");
+        this.frame = existingFrame;
 
-        // Load username from file and fetch statistics from the database
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         loadUserData();
         fetchStatistics();
-
         createUIComponents();
-        frame.setContentPane(backgroundPanel); // Set new content
+
+        frame.setContentPane(this); // Set new content
         frame.revalidate(); // Refresh the frame
         frame.repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     // Load username from name.txt
@@ -77,11 +89,11 @@ public class Statistics {
 
     // Create UI Components
     private void createUIComponents() {
-        backgroundPanel.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         // Title Label
         JLabel statisticsLabel = createLabel("Statistics", 24, SwingConstants.CENTER);
-        backgroundPanel.add(statisticsLabel, BorderLayout.NORTH);
+        add(statisticsLabel, BorderLayout.NORTH);
 
         // Info Panel
         JPanel infoPanel = new JPanel(new GridBagLayout());
@@ -102,7 +114,7 @@ public class Statistics {
         gbc.gridy = 1;
         infoPanel.add(averageDurationLabel, gbc);
 
-        backgroundPanel.add(infoPanel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.CENTER);
 
         // Back Button
         JButton backButton = createButton("Back");
@@ -110,7 +122,7 @@ public class Statistics {
             MainMenuWindow mainMenu = new MainMenuWindow(frame); // Go back to Main Menu
             mainMenu.show();
         });
-        backgroundPanel.add(backButton, BorderLayout.SOUTH);
+        add(backButton, BorderLayout.SOUTH);
     }
 
     // Create Label Helper

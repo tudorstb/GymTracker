@@ -11,24 +11,36 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CreateAccountWindow {
+
+public class CreateAccountWindow extends JPanel {
+    private Image backgroundImage;
     private JFrame createAccountFrame;
-    private BackgroundPanel createAccountPanel;
     private Connection connection;
 
     // Constructor
     public CreateAccountWindow(String backgroundImagePath) {
+        try {
+            backgroundImage = ImageIO.read(new File(backgroundImagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         createAccountFrame = createFrame("Create Account", "icon.png", 520, 450);
-        createAccountPanel = new BackgroundPanel(backgroundImagePath);
-        createAccountPanel.setLayout(new BorderLayout());
+        createAccountFrame.setContentPane(this);
 
-        // Initialize database connection
         initializeDatabaseConnection();
-
         setupUIComponents();
 
-        createAccountFrame.setContentPane(createAccountPanel);
         createAccountFrame.setVisible(true);
+    }
+
+    // Paint method to render the background image
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     // Initialize the database connection
@@ -47,10 +59,12 @@ public class CreateAccountWindow {
 
     // Setup UI Components
     private void setupUIComponents() {
+        setLayout(new BorderLayout());
+
         // Title Label
         JLabel titleLabel = new JLabel("Create New Account", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Cooper Black", Font.BOLD, 24));
-        createAccountPanel.add(titleLabel, BorderLayout.NORTH);
+        add(titleLabel, BorderLayout.NORTH);
 
         // Center Panel for input fields
         JPanel inputPanel = new JPanel(new GridBagLayout());
@@ -91,7 +105,7 @@ public class CreateAccountWindow {
         addLabelAndField(inputPanel, gbc, "Gender:", genderComboBox, 7);
 
         // Add inputPanel to the center of the main panel
-        createAccountPanel.add(inputPanel, BorderLayout.CENTER);
+        add(inputPanel, BorderLayout.CENTER);
 
         // Create Button Panel
         JPanel buttonPanel = new JPanel();
@@ -121,7 +135,7 @@ public class CreateAccountWindow {
         // Add the cancel button panel to the buttonPanel (right side)
         buttonPanel.add(cancelButtonPanel);
 
-        createAccountPanel.add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         // Add action to create account
         createButton.addActionListener(e -> {
@@ -143,7 +157,7 @@ public class CreateAccountWindow {
                 } else if (!isEmailValid(email)) {
                     JOptionPane.showMessageDialog(createAccountFrame, "The email is not valid.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 } else if (!isPasswordValid(password)) {
-                    JOptionPane.showMessageDialog(createAccountFrame, "Password does not meet the requirements ,You need at least 8 elements and a number.", "Input Error", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(createAccountFrame, "Password does not meet the requirements, you need at least 8 characters and a number.", "Input Error", JOptionPane.WARNING_MESSAGE);
                 } else {
                     int age = Integer.parseInt(ageText);
                     if (age < 0) {
@@ -198,11 +212,11 @@ public class CreateAccountWindow {
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
-            return resultSet.getInt(1) > 0;  // Returns true if the username exists
+            return resultSet.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     // Check if the email already exists in the database
@@ -212,27 +226,66 @@ public class CreateAccountWindow {
             statement.setString(1, email);
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
-            return resultSet.getInt(1) > 0;  // Returns true if the email exists
+            return resultSet.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
-    // Validate the password strength
-    private boolean isPasswordValid(String password) {
-        return password.length() >= 8 && password.matches(".*\\d.*");
-    }
-
-    // Validate the email format
+    // Validate email format
     private boolean isEmailValid(String email) {
-        Pattern pattern = Pattern.compile("^(.+)@(.+)$");
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
 
-    // Create a JLabel and JTextField, and add them to the GridBagLayout
-    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
+    // Validate password format
+    private boolean isPasswordValid(String password) {
+        return password.length() >= 8 && password.matches(".*\\d.*");
+    }
+
+    // Helper method to create a text field
+    private JTextField createTextField(int columns) {
+        JTextField textField = new JTextField(columns);
+        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        return textField;
+    }
+
+    // Helper method to create a password field
+    private JPasswordField createPasswordField(int columns) {
+        JPasswordField passwordField = new JPasswordField(columns);
+        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        return passwordField;
+    }
+
+    // Helper method to create a toggle password button
+    private JButton createToggleButton(JPasswordField passwordField) {
+        JButton toggleButton = new JButton("Show");
+        toggleButton.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        toggleButton.addActionListener(e -> {
+            boolean isPasswordVisible = passwordField.echoCharIsSet();
+            passwordField.setEchoChar(isPasswordVisible ? (char) 0 : '*');
+            toggleButton.setText(isPasswordVisible ? "Show" : "Hide");
+        });
+        return toggleButton;
+    }
+
+    // Helper method to add labels and text fields to inputPanel
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent component, int row) {
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+
+        gbc.gridx = 1;
+        panel.add(component, gbc);
+    }
+
+    // Helper method to add labels, text fields, and buttons to inputPanel
+    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, JButton button, int row) {
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
         gbc.gridx = 0;
@@ -241,81 +294,35 @@ public class CreateAccountWindow {
 
         gbc.gridx = 1;
         panel.add(field, gbc);
-    }
-
-    // Create a JLabel, JTextField, and a JButton for toggling the password visibility
-    private void addLabelFieldAndButton(JPanel panel, GridBagConstraints gbc, String labelText, JPasswordField passwordField, JButton toggleButton, int row) {
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(label, gbc);
-
-        gbc.gridx = 1;
-        panel.add(passwordField, gbc);
 
         gbc.gridx = 2;
-        panel.add(toggleButton, gbc);
+        panel.add(button, gbc);
     }
 
-    // Create a JTextField with the specified columns
-    private JTextField createTextField(int columns) {
-        JTextField textField = new JTextField(columns);
-        textField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        return textField;
-    }
-
-    // Create a JPasswordField with the specified columns
-    private JPasswordField createPasswordField(int columns) {
-        JPasswordField passwordField = new JPasswordField(columns);
-        passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 16));
-        return passwordField;
-    }
-
-    // Create a button to toggle password visibility
-    private JButton createToggleButton(JPasswordField passwordField) {
-        JButton toggleButton = new JButton("Show");
-        toggleButton.setFont(new Font("Cooper Black", Font.BOLD, 14));
-        toggleButton.addActionListener(e -> {
-            if (passwordField.getEchoChar() == '\u0000') {
-                passwordField.setEchoChar('*');
-                toggleButton.setText("Show");
-            } else {
-                passwordField.setEchoChar('\u0000');
-                toggleButton.setText("Hide");
-            }
-        });
-        return toggleButton;
-    }
-
-    // Create a JButton with the specified text and background color
+    // Helper method to create a button
     private JButton createButton(String text, Color color) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 16));
         button.setBackground(color);
         button.setForeground(Color.WHITE);
-        button.setPreferredSize(new Dimension(150, 40));
         return button;
     }
 
-    // Create the main frame
+    // Helper method to create a JFrame with specific settings
     private JFrame createFrame(String title, String iconPath, int width, int height) {
+
         JFrame frame = new JFrame(title);
-        frame.setUndecorated(true);  // Removes title bar and window buttons
-        try {
-            frame.setIconImage(ImageIO.read(new File(iconPath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        frame.setIconImage(new ImageIcon(iconPath).getImage());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setUndecorated(true);  // Removes title bar and window buttons
         return frame;
     }
 
-    // Custom exception to handle negative age values
-    class NegativeAgeException extends Exception {
+    // Custom exception for negative age
+    private class NegativeAgeException extends Exception {
         public NegativeAgeException(String message) {
             super(message);
         }

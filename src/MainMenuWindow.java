@@ -4,7 +4,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class MainMenuWindow {
+
+public class MainMenuWindow extends JPanel {
+    private Image backgroundImage;
     private JFrame mainMenuFrame;
 
     public MainMenuWindow(JFrame existingFrame) {
@@ -12,12 +14,25 @@ public class MainMenuWindow {
         setupUI();
     }
 
-    // Re-open initialize when returning from another screen
     public MainMenuWindow() {
-        this.mainMenuFrame = createFrame("Main Menu", "icon.png", 880, 590);
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        mainMenuFrame = createFrame("Main Menu", "icon.png", 880, 590);
+        mainMenuFrame.setContentPane(this);
         setupUI();
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
     // Set up the UI components
     private void setupUI() {
         BackgroundPanel mainMenuPanel = new BackgroundPanel("background.jpg");

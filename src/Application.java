@@ -44,7 +44,6 @@ class Application {
     // Initialize the database connection
     private void initializeDatabaseConnection() {
         try {
-            // Update with your database URL, user, and password
             String url = "jdbc:postgresql://localhost:5432/fit_database";
             String user = "gymuser";
             String password = "password123";
@@ -57,14 +56,12 @@ class Application {
         }
     }
 
-    // Run the application
     public void run() {
         createUIComponents();
         frame.setVisible(true);
         frame.setLocationRelativeTo(null); // Center the frame on the screen
     }
 
-    // Create and setup the frame
     private JFrame createFrame(String title, String iconPath, int width, int height) {
         JFrame frame = new JFrame(title);
         frame.setSize(width, height);
@@ -74,7 +71,7 @@ class Application {
         return frame;
     }
 
-    // Set the application icon
+    // icon creation
     private void setIcon(JFrame frame, String iconPath) {
         try {
             Image icon = ImageIO.read(new File(iconPath));

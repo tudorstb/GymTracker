@@ -1,9 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,25 +11,38 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.imageio.ImageIO;
 
-public class Profile {
+public class Profile extends JPanel {
+    private Image backgroundImage;
     private JFrame frame;
-    private BackgroundPanel backgroundPanel;
     private String username;
     private String email;
     private int age;
 
     // Constructor: accepts an existing JFrame to modify
     public Profile(JFrame existingFrame) {
-        this.frame = existingFrame; // Reuse the existing frame
-        this.backgroundPanel = new BackgroundPanel("background.jpg");
+        this.frame = existingFrame;
 
-        // Load username from file and fetch email & age from the database
+        // Load background image
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         loadUserData();
-
         createUIComponents();
-        frame.setContentPane(backgroundPanel); // Set new content
+
+        frame.setContentPane(this); // Set new content
         frame.revalidate(); // Refresh the frame
         frame.repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     // Load username from name.txt and fetch the corresponding email and age from the database
@@ -65,11 +78,11 @@ public class Profile {
 
     // Create UI Components
     private void createUIComponents() {
-        backgroundPanel.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         // Title Label
         JLabel profileLabel = createLabel("Profile", 24, SwingConstants.CENTER);
-        backgroundPanel.add(profileLabel, BorderLayout.NORTH);
+        add(profileLabel, BorderLayout.NORTH);
 
         // Info Panel
         JPanel infoPanel = new JPanel(new GridBagLayout());
@@ -94,7 +107,7 @@ public class Profile {
         gbc.gridy = 2;
         infoPanel.add(ageLabel, gbc);
 
-        backgroundPanel.add(infoPanel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.CENTER);
 
         // Edit Profile Button in Top-Right Corner with Icon
         JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -107,7 +120,7 @@ public class Profile {
         });
 
         topRightPanel.add(editProfileButton);
-        backgroundPanel.add(topRightPanel, BorderLayout.NORTH);
+        add(topRightPanel, BorderLayout.NORTH);
 
         // Back Button
         JButton backButton = createButton("Back");
@@ -115,7 +128,7 @@ public class Profile {
             MainMenuWindow mainMenu = new MainMenuWindow(frame); // Go back to Main Menu
             mainMenu.show();
         });
-        backgroundPanel.add(backButton, BorderLayout.SOUTH);
+        add(backButton, BorderLayout.SOUTH);
     }
 
     // Create Label Helper

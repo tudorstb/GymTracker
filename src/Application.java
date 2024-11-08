@@ -11,43 +11,74 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-class Application {
+class Application extends JPanel {
+    private Image backgroundImage;
     private JFrame frame;
-    private BackgroundPanel panel;
     private Connection connection;
 
-    // Custom exception for missing username
     public class UsernameMissingException extends Exception {
         public UsernameMissingException(String message) {
             super(message);
         }
     }
 
-    // Custom exception for missing password
     public class PasswordMissingException extends Exception {
         public PasswordMissingException(String message) {
             super(message);
         }
     }
 
-    // Constructor
     public Application() {
-        frame = createFrame("GYM TRACKER", "icon.png", 880, 590);
-        panel = new BackgroundPanel("background.jpg");
-        frame.setContentPane(panel);
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        // Initialize database connection
+        frame = createFrame("GYM TRACKER", "icon.png", 880, 590);
+        frame.setContentPane(this);
+
         initializeDatabaseConnection();
     }
 
-    // Initialize the database connection
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+
+    private JFrame createFrame(String title, String iconPath, int width, int height) {
+        JFrame frame = new JFrame(title);
+        frame.setSize(width, height);
+        frame.setUndecorated(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        try {
+            Image icon = ImageIO.read(new File(iconPath));
+            frame.setIconImage(icon);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return frame;
+    }
+
     private void initializeDatabaseConnection() {
         try {
             String url = "jdbc:postgresql://localhost:5432/fit_database";
             String user = "gymuser";
             String password = "password123";
-
             connection = DriverManager.getConnection(url, user, password);
             System.out.println("Database connected successfully.");
         } catch (SQLException e) {
@@ -59,71 +90,42 @@ class Application {
     public void run() {
         createUIComponents();
         frame.setVisible(true);
-        frame.setLocationRelativeTo(null); // Center the frame on the screen
+        frame.setLocationRelativeTo(null);
     }
 
-    private JFrame createFrame(String title, String iconPath, int width, int height) {
-        JFrame frame = new JFrame(title);
-        frame.setSize(width, height);
-        frame.setUndecorated(true);  // Remove title bar and system buttons
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setIcon(frame, iconPath);
-        return frame;
-    }
-
-    // icon creation
-    private void setIcon(JFrame frame, String iconPath) {
-        try {
-            Image icon = ImageIO.read(new File(iconPath));
-            frame.setIconImage(icon);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Create UI Components
     private void createUIComponents() {
-        panel.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
-        // Title Panel with Exit Button
         JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setOpaque(false); // To maintain background visibility
-
-        // Title Label
+        titlePanel.setOpaque(false);
         JLabel loginLabel = createLabel("Log in", 24, SwingConstants.CENTER);
         titlePanel.add(loginLabel, BorderLayout.CENTER);
 
-        // Exit Button
         JButton exitButton = createButton("Exit");
-        exitButton.setBackground(new Color(178, 34, 34)); // Red color for emphasis
-        exitButton.addActionListener(e -> System.exit(0)); // Exit the program when clicked
-        titlePanel.add(exitButton, BorderLayout.EAST); // Align exit button to the right
+        exitButton.setBackground(new Color(178, 34, 34));
+        exitButton.addActionListener(e -> System.exit(0));
+        titlePanel.add(exitButton, BorderLayout.EAST);
 
-        panel.add(titlePanel, BorderLayout.NORTH);
+        add(titlePanel, BorderLayout.NORTH);
 
-        // Input Panel
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // User Input
         JTextField userInput = createTextField(10);
         JPasswordField passwordField = createPasswordField(10);
 
-        // Add User and Password Inputs
         addLabelAndField(inputPanel, gbc, "User:", userInput, 0);
         addLabelAndField(inputPanel, gbc, "Password:", passwordField, 1);
 
-        // Log In Button
         JButton loginButton = createButton("Log in");
         loginButton.addActionListener(e -> {
             String username = userInput.getText();
             String password = new String(passwordField.getPassword());
 
             try {
-                // Check if username or password is missing
                 if (username.isEmpty()) {
                     throw new UsernameMissingException("Username is missing.");
                 }
@@ -133,14 +135,12 @@ class Application {
 
                 if (authenticateUser(username, password)) {
                     saveUsernameToFile(username);
-                    new MainMenuWindow(); // Call MainMenuWindow without parameters
+                    new MainMenuWindow();
                     frame.dispose();
                 } else {
                     JOptionPane.showMessageDialog(frame, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (UsernameMissingException ex) {
-                JOptionPane.showMessageDialog(frame, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
-            } catch (PasswordMissingException ex) {
+            } catch (UsernameMissingException | PasswordMissingException ex) {
                 JOptionPane.showMessageDialog(frame, ex.getMessage(), "Input Error", JOptionPane.WARNING_MESSAGE);
             }
         });
@@ -150,23 +150,21 @@ class Application {
         gbc.insets = new Insets(20, 0, 0, 0);
         inputPanel.add(loginButton, gbc);
 
-        panel.add(inputPanel, BorderLayout.CENTER);
+        add(inputPanel, BorderLayout.CENTER);
 
-        // Create Account Button
         JButton createAccountButton = createButton("Create Account");
         createAccountButton.setBackground(new Color(70, 130, 180));
         createAccountButton.addActionListener(e -> new CreateAccountWindow("BackgroundImageForLogIn.png"));
-        panel.add(createAccountButton, BorderLayout.SOUTH);
+        add(createAccountButton, BorderLayout.SOUTH);
     }
 
-    // Method to authenticate user from the database
     private boolean authenticateUser(String username, String password) {
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, username);
             statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
-            return resultSet.next(); // Return true if a match is found
+            return resultSet.next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -176,19 +174,10 @@ class Application {
     private void saveUsernameToFile(String username) {
         File file = new File("name.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(username); // Write the username to the file
+            writer.write(username);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    // Helper to add labels and text fields
-    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(createLabel(labelText, 21, SwingConstants.RIGHT), gbc);
-        gbc.gridx = 1;
-        panel.add(field, gbc);
     }
 
     private JLabel createLabel(String text, int fontSize, int alignment) {
@@ -214,5 +203,13 @@ class Application {
         passwordField.setFont(new Font("Cooper Black", Font.PLAIN, 21));
         passwordField.setEchoChar('*');
         return passwordField;
+    }
+
+    private void addLabelAndField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(createLabel(labelText, 21, SwingConstants.RIGHT), gbc);
+        gbc.gridx = 1;
+        panel.add(field, gbc);
     }
 }

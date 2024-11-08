@@ -7,10 +7,21 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-public class SettingsWindow {
+public class SettingsWindow extends JPanel {
+    private Image backgroundImage;
     private JFrame frame;
-    private BackgroundPanel backgroundPanel;
     private JTextField usernameField;
     private JTextField emailField;
     private JTextField ageField;
@@ -23,15 +34,28 @@ public class SettingsWindow {
     private Double currentWeight; // can be null
 
     public SettingsWindow(JFrame existingFrame) {
-        this.frame = existingFrame; // Reuse existing frame
-        this.backgroundPanel = new BackgroundPanel("background.jpg");
+        this.frame = existingFrame;
+
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         loadCurrentData();
         setupUI();
 
-        frame.setContentPane(backgroundPanel); // Set new content
+        frame.setContentPane(this); // Set new content
         frame.revalidate(); // Refresh the frame
         frame.repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     private void loadCurrentData() {
@@ -65,7 +89,7 @@ public class SettingsWindow {
     }
 
     private void setupUI() {
-        backgroundPanel.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         // Info Panel
         JPanel infoPanel = new JPanel(new GridBagLayout());
@@ -87,7 +111,7 @@ public class SettingsWindow {
         addLabelAndField(infoPanel, gbc, "Height (cm):", heightField, 3);
         addLabelAndField(infoPanel, gbc, "Weight (kg):", weightField, 4);
 
-        backgroundPanel.add(infoPanel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.CENTER);
 
         // Buttons Panel
         JPanel buttonPanel = new JPanel(new BorderLayout());
@@ -109,7 +133,7 @@ public class SettingsWindow {
         backPanel.add(backButton);
         buttonPanel.add(backPanel, BorderLayout.SOUTH);
 
-        backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private void saveChanges() {

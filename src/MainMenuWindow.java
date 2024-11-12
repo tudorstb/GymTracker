@@ -4,26 +4,30 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-
 public class MainMenuWindow extends JPanel {
     private Image backgroundImage;
     private JFrame mainMenuFrame;
 
     public MainMenuWindow(JFrame existingFrame) {
         this.mainMenuFrame = existingFrame;
+        loadBackgroundImage(); // Ensure background is loaded
         setupUI();
     }
 
     public MainMenuWindow() {
+        loadBackgroundImage(); // Ensure background is loaded
+
+        mainMenuFrame = createFrame("Main Menu", "icon.png", 880, 590);
+        mainMenuFrame.setContentPane(this);
+        setupUI();
+    }
+
+    private void loadBackgroundImage() {
         try {
             backgroundImage = ImageIO.read(new File("background.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        mainMenuFrame = createFrame("Main Menu", "icon.png", 880, 590);
-        mainMenuFrame.setContentPane(this);
-        setupUI();
     }
 
     @Override
@@ -33,10 +37,10 @@ public class MainMenuWindow extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
+
     // Set up the UI components
     private void setupUI() {
-        BackgroundPanel mainMenuPanel = new BackgroundPanel("background.jpg");
-        mainMenuPanel.setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout()); // Use this JPanel as the main container
 
         // Create Buttons
         JButton viewProfileButton = createStyledMenuButton("View Profile");
@@ -76,16 +80,16 @@ public class MainMenuWindow extends JPanel {
         gbc.gridy = 2;
         buttonPanel.add(trackWorkoutButton, gbc);
 
-        mainMenuPanel.add(buttonPanel, BorderLayout.CENTER);
+        this.add(buttonPanel, BorderLayout.CENTER);
 
         // Create a panel to hold the Log Out button and position it at the bottom-right
         JPanel bottomRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomRightPanel.setOpaque(false); // Transparent background
         bottomRightPanel.add(logOutButton);
-        mainMenuPanel.add(bottomRightPanel, BorderLayout.SOUTH);
+        this.add(bottomRightPanel, BorderLayout.SOUTH);
 
         // Set content and make the frame visible
-        mainMenuFrame.setContentPane(mainMenuPanel);
+        mainMenuFrame.setContentPane(this);
         mainMenuFrame.setVisible(true);
         mainMenuFrame.setLocationRelativeTo(null);  // Center the window
     }

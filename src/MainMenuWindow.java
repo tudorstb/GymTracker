@@ -48,6 +48,11 @@ public class MainMenuWindow extends JPanel {
         JButton statisticsButton = createStyledMenuButton("Statistics");
         JButton logOutButton = createStyledMenuButton("Log Out");
 
+        // Action for Track Workout Button
+        trackWorkoutButton.addActionListener(e -> {
+            new TrackWorkout(mainMenuFrame); // Modify the existing frame for the Track Workout screen
+        });
+
         // Action for View Profile Button
         viewProfileButton.addActionListener(e -> {
             new Profile(mainMenuFrame); // Modify the existing frame for the Profile screen

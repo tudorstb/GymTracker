@@ -1,2 +1,2 @@
 # GymTracker
- This is my project for the "Programing III" lab.Alsso a prjoect i vanted to do a long time ago 
+GymTracker is a comprehensive fitness tracking application designed for users to monitor and improve their workout progress. Developed as part of the Programming III lab, this project aims to combine functionality with an intuitive user experience. It allows users to create profiles, track their workouts, and set goals. The app supports features such as personalized exercise logs, workout history, and body metrics like height and weight. Additionally, GymTracker includes an administrative interface for managing exercises and user data. With a clean and responsive design, GymTracker is built to help users stay motivated and focused on their fitness journey.

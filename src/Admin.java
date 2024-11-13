@@ -62,7 +62,7 @@ public class Admin extends JPanel {
         JButton logoutButton = createStyledButton("Log Out");
         logoutButton.addActionListener(e -> {
             adminFrame.dispose();
-            new Application(); // Navigate back to the Application class
+            new Application().run(); // Reuse the logout logic to restart the application
         });
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

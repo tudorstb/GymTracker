@@ -8,6 +8,7 @@ public class MainMenuWindow extends JPanel {
     private Image backgroundImage;
     private JFrame mainMenuFrame;
 
+   //To reopen in the same f when coming back
     public MainMenuWindow(JFrame existingFrame) {
         this.mainMenuFrame = existingFrame;
         loadBackgroundImage(); // Ensure background is loaded

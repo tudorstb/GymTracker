@@ -156,7 +156,7 @@ public class Profile extends JPanel {
             int width = 35;
             int height = 35;
 
-            // Create a high-quality icon
+            // Create a icon
             ImageIcon icon = new ImageIcon(img.getScaledInstance(width, height, Image.SCALE_SMOOTH));
 
             button.setIcon(icon);
@@ -166,7 +166,7 @@ public class Profile extends JPanel {
             button.setContentAreaFilled(false);
             button.setOpaque(false);
 
-            // Add hover effect (optional)
+            // Add hover effect
             button.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseEntered(java.awt.event.MouseEvent evt) {

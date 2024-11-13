@@ -18,7 +18,7 @@ public class Statistics extends JPanel {
     private int totalWorkouts;
     private double averageWorkoutDuration;
 
-    // Constructor: accepts an existing JFrame to modify
+
     public Statistics(JFrame existingFrame) {
         this.frame = existingFrame;
 

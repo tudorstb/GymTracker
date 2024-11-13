@@ -5,11 +5,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 
 public class TrackWorkout extends JPanel {
     private Image backgroundImage;
@@ -67,7 +63,7 @@ public class TrackWorkout extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Add custom workout tracking UI elements here
+        // Add UI elements here
         JLabel placeholderLabel = createLabel("Feature to log workouts will be implemented here.", 21, SwingConstants.LEFT);
         gbc.gridx = 0;
         gbc.gridy = 0;

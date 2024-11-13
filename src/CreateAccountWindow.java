@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.sql.Connection;
@@ -19,11 +20,17 @@ public class CreateAccountWindow extends JPanel {
 
     // Constructor
     public CreateAccountWindow(String backgroundImagePath) {
+
         try {
             backgroundImage = ImageIO.read(new File(backgroundImagePath));
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(createAccountFrame, "Background image not found. Please check the file path.", "File Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(createAccountFrame, "Error loading the background image.", "File Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
+
 
         createAccountFrame = createFrame("Create Account", "icon.png", 520, 450);
         createAccountFrame.setContentPane(this);

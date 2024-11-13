@@ -132,8 +132,12 @@ class Application extends JPanel {
                 if (password.isEmpty()) {
                     throw new PasswordMissingException("Password is missing.");
                 }
+                // Log in admin
 
-                if (authenticateUser(username, password)) {
+                if (username.equals("admin") && password.equals("admin")) {
+                    new Admin(connection);
+                    frame.dispose();}
+                else if (authenticateUser(username, password)) {
                     saveUsernameToFile(username);
                     new MainMenuWindow();
                     frame.dispose();

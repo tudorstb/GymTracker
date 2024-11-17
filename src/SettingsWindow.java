@@ -2,17 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.File;
-import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.io.BufferedReader;
 import java.io.FileReader;
-
 
 public class SettingsWindow extends JPanel {
     private Image backgroundImage;
@@ -62,21 +58,18 @@ public class SettingsWindow extends JPanel {
             return;
         }
 
-        String url = "jdbc:postgresql://localhost:5432/fit_database";
-        String dbUser = "gymuser";
-        String dbPassword = "password123";
+        // Use the existing DatabaseConnection class to get the connection
+        Connection connection = DatabaseConnection.getConnection(); // Retrieve the connection
 
-        try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword)) {
-            String query = "SELECT email, age, height, weight FROM users WHERE username = ?";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setString(1, currentUsername);
-                var resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    currentEmail = resultSet.getString("email");
-                    currentAge = resultSet.getInt("age");
-                    currentHeight = resultSet.getObject("height") != null ? resultSet.getDouble("height") : null;
-                    currentWeight = resultSet.getObject("weight") != null ? resultSet.getDouble("weight") : null;
-                }
+        String query = "SELECT email, age, height, weight FROM users WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, currentUsername);
+            var resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                currentEmail = resultSet.getString("email");
+                currentAge = resultSet.getInt("age");
+                currentHeight = resultSet.getObject("height") != null ? resultSet.getDouble("height") : null;
+                currentWeight = resultSet.getObject("weight") != null ? resultSet.getDouble("weight") : null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -174,35 +167,32 @@ public class SettingsWindow extends JPanel {
             return;
         }
 
-        String url = "jdbc:postgresql://localhost:5432/fit_database";
-        String dbUser = "gymuser";
-        String dbPassword = "password123";
+        // Use the existing DatabaseConnection class to get the connection
+        Connection connection = DatabaseConnection.getConnection(); // Retrieve the connection
 
-        try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword)) {
-            String query = "UPDATE users SET username = ?, email = ?, age = ?, height = ?, weight = ? WHERE username = ?";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setString(1, newUsername);
-                statement.setString(2, newEmail);
-                statement.setInt(3, newAge);
-                if (newHeight != null) statement.setDouble(4, newHeight);
-                else statement.setNull(4, java.sql.Types.DOUBLE);
-                if (newWeight != null) statement.setDouble(5, newWeight);
-                else statement.setNull(5, java.sql.Types.DOUBLE);
-                statement.setString(6, currentUsername);
-                statement.executeUpdate();
+        String query = "UPDATE users SET username = ?, email = ?, age = ?, height = ?, weight = ? WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, newUsername);
+            statement.setString(2, newEmail);
+            statement.setInt(3, newAge);
+            if (newHeight != null) statement.setDouble(4, newHeight);
+            else statement.setNull(4, java.sql.Types.DOUBLE);
+            if (newWeight != null) statement.setDouble(5, newWeight);
+            else statement.setNull(5, java.sql.Types.DOUBLE);
+            statement.setString(6, currentUsername);
+            statement.executeUpdate();
 
-                if (!newUsername.equals(currentUsername)) {
-                    rewriteUsernameInFile(newUsername);
-                }
-
-                currentUsername = newUsername;
-                currentEmail = newEmail;
-                currentAge = newAge;
-                currentHeight = newHeight;
-                currentWeight = newWeight;
-
-                JOptionPane.showMessageDialog(frame, "Changes saved successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (!newUsername.equals(currentUsername)) {
+                rewriteUsernameInFile(newUsername);
             }
+
+            currentUsername = newUsername;
+            currentEmail = newEmail;
+            currentAge = newAge;
+            currentHeight = newHeight;
+            currentWeight = newWeight;
+
+            JOptionPane.showMessageDialog(frame, "Changes saved successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Failed to save changes.", "Error", JOptionPane.ERROR_MESSAGE);

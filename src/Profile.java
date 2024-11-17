@@ -46,7 +46,7 @@ public class Profile extends JPanel {
         }
     }
 
-   
+
     private void loadUserData() {
         // Read username from name.txt
         try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {

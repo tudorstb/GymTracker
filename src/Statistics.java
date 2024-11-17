@@ -6,7 +6,6 @@ import javax.imageio.ImageIO;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +16,6 @@ public class Statistics extends JPanel {
     private String username;
     private int totalWorkouts;
     private double averageWorkoutDuration;
-
 
     public Statistics(JFrame existingFrame) {
         this.frame = existingFrame;
@@ -56,31 +54,29 @@ public class Statistics extends JPanel {
         }
     }
 
-    // Fetch statistics from the database
+    // Fetch statistics from the database using the persistent connection
     private void fetchStatistics() {
-        String url = "jdbc:postgresql://localhost:5432/fit_database";
-        String dbUser = "gymuser";
-        String dbPassword = "password123";
+        // Use the existing DatabaseConnection class to get the connection
+        Connection connection = DatabaseConnection.getConnection(); // Retrieve the persistent connection
 
-        try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword)) {
-            // Get total workouts
-            String workoutCountQuery = "SELECT COUNT(*) FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-            try (PreparedStatement statement = connection.prepareStatement(workoutCountQuery)) {
-                statement.setString(1, username);
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    totalWorkouts = resultSet.getInt(1);
-                }
+        String workoutCountQuery = "SELECT COUNT(*) FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+        try (PreparedStatement statement = connection.prepareStatement(workoutCountQuery)) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                totalWorkouts = resultSet.getInt(1);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-            // Get average workout duration
-            String averageDurationQuery = "SELECT AVG(EXTRACT(EPOCH FROM duration)) / 60 FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-            try (PreparedStatement statement = connection.prepareStatement(averageDurationQuery)) {
-                statement.setString(1, username);
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    averageWorkoutDuration = resultSet.getDouble(1);
-                }
+        // Get average workout duration
+        String averageDurationQuery = "SELECT AVG(EXTRACT(EPOCH FROM duration)) / 60 FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+        try (PreparedStatement statement = connection.prepareStatement(averageDurationQuery)) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                averageWorkoutDuration = resultSet.getDouble(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();

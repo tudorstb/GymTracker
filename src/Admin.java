@@ -14,7 +14,8 @@ public class Admin extends JPanel {
 
         adminFrame = createFrame("Exercises List", "icon.png", 880, 590);
         adminFrame.setContentPane(this);
-        initializeDatabaseConnection();
+        connection = DatabaseConnection.getConnection(); // Use the external connection class
+
         setupUI();
     }
 
@@ -33,18 +34,7 @@ public class Admin extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
-    private void initializeDatabaseConnection() {
-        try {
-            String url = "jdbc:postgresql://localhost:5432/fit_database";
-            String user = "gymuser";
-            String password = "password123";
-            connection = DriverManager.getConnection(url, user, password);
-            System.out.println("Database connected successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(adminFrame, "Failed to connect to the database.", "Connection Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+
 
     private void setupUI() {
         this.setLayout(new BorderLayout());

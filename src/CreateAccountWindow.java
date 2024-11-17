@@ -35,7 +35,8 @@ public class CreateAccountWindow extends JPanel {
         createAccountFrame = createFrame("Create Account", "icon.png", 520, 450);
         createAccountFrame.setContentPane(this);
 
-        initializeDatabaseConnection();
+        connection = DatabaseConnection.getConnection(); // Use the external connection class
+
         setupUIComponents();
 
         createAccountFrame.setVisible(true);
@@ -51,18 +52,7 @@ public class CreateAccountWindow extends JPanel {
     }
 
     // Initialize the database connection
-    private void initializeDatabaseConnection() {
-        try {
-            String url = "jdbc:postgresql://localhost:5432/fit_database";
-            String user = "gymuser";
-            String password = "password123";
-            connection = DriverManager.getConnection(url, user, password);
-            System.out.println("Database connected successfully.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(createAccountFrame, "Failed to connect to the database.", "Connection Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+
 
     // Setup UI Components
     private void setupUIComponents() {

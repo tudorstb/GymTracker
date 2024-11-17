@@ -16,6 +16,7 @@ public class Profile extends JPanel {
     private JFrame frame;
     private String username;
     private String email;
+    private Connection connection;
     private int age;
 
     // Constructor: accepts an existing JFrame to modify

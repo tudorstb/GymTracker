@@ -46,7 +46,7 @@ public class Profile extends JPanel {
         }
     }
 
-    // Load username from name.txt and fetch the corresponding email and age from the database
+   
     private void loadUserData() {
         // Read username from name.txt
         try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
@@ -57,20 +57,17 @@ public class Profile extends JPanel {
             return;
         }
 
-        // Fetch email and age from the database
-        String url = "jdbc:postgresql://localhost:5432/fit_database";
-        String dbUser = "gymuser";
-        String dbPassword = "password123";
+        // Use the existing DatabaseConnection class to get the connection
+        connection = DatabaseConnection.getConnection(); // Retrieve the connection
 
-        try (Connection connection = DriverManager.getConnection(url, dbUser, dbPassword)) {
-            String query = "SELECT email, age FROM users WHERE username = ?";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setString(1, username);
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    email = resultSet.getString("email");
-                    age = resultSet.getInt("age");
-                }
+        // Fetch email and age from the database
+        String query = "SELECT email, age FROM users WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                email = resultSet.getString("email");
+                age = resultSet.getInt("age");
             }
         } catch (SQLException e) {
             e.printStackTrace();

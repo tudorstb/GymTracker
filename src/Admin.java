@@ -27,6 +27,7 @@ public class Admin extends JPanel {
         }
     }
 
+    //to still have the background when we come back
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

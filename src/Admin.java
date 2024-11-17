@@ -3,21 +3,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class Admin extends JPanel {
     private Image backgroundImage;
     private JFrame adminFrame;
-
-    public Admin(Connection connection) {
+    private Connection connection;
+    public Admin() {
         loadBackgroundImage();
 
         adminFrame = createFrame("Exercises List", "icon.png", 880, 590);
         adminFrame.setContentPane(this);
-        setupUI(connection);
+        initializeDatabaseConnection();
+        setupUI();
     }
 
     private void loadBackgroundImage() {
@@ -35,8 +33,20 @@ public class Admin extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
+    private void initializeDatabaseConnection() {
+        try {
+            String url = "jdbc:postgresql://localhost:5432/fit_database";
+            String user = "gymuser";
+            String password = "password123";
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Database connected successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(adminFrame, "Failed to connect to the database.", "Connection Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-    private void setupUI(Connection connection) {
+    private void setupUI() {
         this.setLayout(new BorderLayout());
 
         // Create text area to display exercises

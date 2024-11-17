@@ -135,7 +135,7 @@ class Application extends JPanel {
                 // Log in admin
 
                 if (username.equals("admin") && password.equals("admin")) {
-                    new Admin(connection);
+                    new Admin();
                     frame.dispose();}
                 else if (authenticateUser(username, password)) {
                     saveUsernameToFile(username);

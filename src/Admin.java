@@ -13,6 +13,7 @@ public class Admin extends JPanel {
         loadBackgroundImage();
 
         adminFrame = createFrame("Exercises List", "icon.png", 880, 590);
+        //create panel and add the frame inside
         adminFrame.setContentPane(this);
         connection = DatabaseConnection.getConnection(); // Use the external connection class
 

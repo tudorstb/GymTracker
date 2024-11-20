@@ -16,7 +16,7 @@ public class Statistics extends JPanel {
     private Image backgroundImage;
     private JFrame frame;
     private String username;
-    private List<String> statistics; // List to store statistics
+    private List<String> statistics; // List to store statistics :Total Workouts and Average Workout Duration
 
     public Statistics(JFrame existingFrame) {
         this.frame = existingFrame;

@@ -10,12 +10,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Profile extends JPanel {
     private Image backgroundImage;
     private JFrame frame;
-    private String username;
-    private String email;
+    //userInfo  holds username, email, and age
+    private List<String> userInfo = new ArrayList<>();
     private Connection connection;
     private int age;
 
@@ -46,11 +48,11 @@ public class Profile extends JPanel {
         }
     }
 
-
     private void loadUserData() {
         // Read username from name.txt
         try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
-            username = reader.readLine();
+            String username = reader.readLine();
+            userInfo.add(username);  // Store username in the list
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Failed to load user data.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -63,11 +65,13 @@ public class Profile extends JPanel {
         // Fetch email and age from the database
         String query = "SELECT email, age FROM users WHERE username = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, username);
+            statement.setString(1, userInfo.get(0));  // Using the username from the list
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                email = resultSet.getString("email");
+                String email = resultSet.getString("email");
                 age = resultSet.getInt("age");
+                userInfo.add(email);  // Store email in the list
+                userInfo.add(String.valueOf(age));  // Store age in the list
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -90,8 +94,8 @@ public class Profile extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Profile information
-        JLabel nameLabel = createLabel("Name: " + (username != null ? username : "Unknown"), 21, SwingConstants.LEFT);
-        JLabel emailLabel = createLabel("Email: " + (email != null ? email : "Unknown"), 21, SwingConstants.LEFT);
+        JLabel nameLabel = createLabel("Name: " + (userInfo.get(0) != null ? userInfo.get(0) : "Unknown"), 21, SwingConstants.LEFT);
+        JLabel emailLabel = createLabel("Email: " + (userInfo.size() > 1 ? userInfo.get(1) : "Unknown"), 21, SwingConstants.LEFT);
         JLabel ageLabel = createLabel("Age: " + (age > 0 ? age : "Unknown"), 21, SwingConstants.LEFT);
 
         // Add profile information to the info panel

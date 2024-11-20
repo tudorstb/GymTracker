@@ -74,10 +74,12 @@ class Application extends JPanel {
         return frame;
     }
 
-
+    //Start's the show
     public void run() {
         createUIComponents();
+        //makes the JFrame frame visible to the user
         frame.setVisible(true);
+        //center the frame on the screen by the monitor's resolution
         frame.setLocationRelativeTo(null);
     }
 

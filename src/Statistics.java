@@ -9,13 +9,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Statistics extends JPanel {
     private Image backgroundImage;
     private JFrame frame;
     private String username;
-    private int totalWorkouts;
-    private double averageWorkoutDuration;
+    private List<String> statistics; // List to store statistics
 
     public Statistics(JFrame existingFrame) {
         this.frame = existingFrame;
@@ -56,15 +57,16 @@ public class Statistics extends JPanel {
 
     // Fetch statistics from the database using the persistent connection
     private void fetchStatistics() {
-        // Use the existing DatabaseConnection class to get the connection
+        statistics = new ArrayList<>();
         Connection connection = DatabaseConnection.getConnection(); // Retrieve the persistent connection
 
+        // Get total workouts
         String workoutCountQuery = "SELECT COUNT(*) FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
         try (PreparedStatement statement = connection.prepareStatement(workoutCountQuery)) {
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                totalWorkouts = resultSet.getInt(1);
+                statistics.add("Total Workouts: " + resultSet.getInt(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -76,7 +78,9 @@ public class Statistics extends JPanel {
             statement.setString(1, username);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                averageWorkoutDuration = resultSet.getDouble(1);
+                double averageWorkoutDuration = resultSet.getDouble(1);
+                statistics.add("Average Workout Duration: " +
+                        (averageWorkoutDuration > 0 ? String.format("%.2f minutes", averageWorkoutDuration) : "No workouts yet"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,8 +103,8 @@ public class Statistics extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Display statistics
-        JLabel totalWorkoutsLabel = createLabel("Total Workouts: " + totalWorkouts, 21, SwingConstants.LEFT);
-        JLabel averageDurationLabel = createLabel("Average Workout Duration: " + (averageWorkoutDuration > 0 ? String.format("%.2f", averageWorkoutDuration) + " minutes" : "No workouts yet"), 21, SwingConstants.LEFT);
+        JLabel totalWorkoutsLabel = createLabel(statistics.get(0), 21, SwingConstants.LEFT);
+        JLabel averageDurationLabel = createLabel(statistics.get(1), 21, SwingConstants.LEFT);
 
         // Add statistics to the info panel
         gbc.gridx = 0;

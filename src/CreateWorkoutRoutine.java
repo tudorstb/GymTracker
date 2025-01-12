@@ -167,6 +167,19 @@ public class CreateWorkoutRoutine extends JPanel {
             return;
         }
 
+        try (PreparedStatement checkStatement = persistentConnection.prepareStatement("SELECT COUNT(*) FROM routines WHERE name = ?")) {
+            checkStatement.setString(1, routineName);
+            ResultSet resultSet = checkStatement.executeQuery();
+            if (resultSet.next() && resultSet.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(frame, "A routine with this name already exists. Please choose a different name.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to check routine name.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
             writer.write("Routine Name: " + routineName + "\n");
             for (String exercise : selectedExercises) {

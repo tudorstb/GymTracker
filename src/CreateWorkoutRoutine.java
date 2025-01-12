@@ -45,6 +45,7 @@ public class CreateWorkoutRoutine extends JPanel {
 
     private void setupUI() {
         setLayout(new BorderLayout());
+        setOpaque(false); // Ensure transparency for background image
 
         // Title
         JLabel titleLabel = new JLabel("Create New Workout Routine", SwingConstants.CENTER);
@@ -64,8 +65,11 @@ public class CreateWorkoutRoutine extends JPanel {
 
         // Panel to display selected exercises
         exercisesPanel = new JPanel();
+        exercisesPanel.setOpaque(false);
         exercisesPanel.setLayout(new BoxLayout(exercisesPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(exercisesPanel);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
 
         // Button to add new exercise

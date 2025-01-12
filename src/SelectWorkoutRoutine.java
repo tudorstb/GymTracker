@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,16 +10,34 @@ import java.util.List;
 public class SelectWorkoutRoutine extends JPanel {
     private JFrame frame;
     private List<String> routines;
+    private Image backgroundImage;
 
     public SelectWorkoutRoutine(JFrame existingFrame) {
         this.frame = existingFrame;
         routines = new ArrayList<>();
+        loadBackgroundImage();
         loadRoutines();
         setupUI();
 
         frame.setContentPane(this);
         frame.revalidate();
         frame.repaint();
+    }
+
+    private void loadBackgroundImage() {
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     private void loadRoutines() {
@@ -55,6 +74,7 @@ public class SelectWorkoutRoutine extends JPanel {
         selectButton.addActionListener(e -> {
             String selectedRoutine = routineList.getSelectedValue();
             if (selectedRoutine != null) {
+                saveSelectedRoutine(selectedRoutine);
                 //new DisplayRoutineExercises(frame, selectedRoutine);
             } else {
                 JOptionPane.showMessageDialog(frame, "Please select a routine.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -72,5 +92,13 @@ public class SelectWorkoutRoutine extends JPanel {
         bottomPanel.add(selectButton);
         bottomPanel.add(backButton);
         add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    private void saveSelectedRoutine(String routineName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("selected_routine.txt"))) {
+            writer.write(routineName);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Failed to save selected routine.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

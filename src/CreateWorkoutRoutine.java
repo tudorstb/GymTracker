@@ -13,18 +13,29 @@ public class CreateWorkoutRoutine extends JPanel {
     private JTextField routineNameField;
     private static final String FILE_NAME = "workout_routines.txt";
     private Image backgroundImage;
-    private Connection persistentConnection;
+    private Connection connection;
 
     public CreateWorkoutRoutine(JFrame existingFrame) {
         this.frame = existingFrame;
         this.selectedExercises = new ArrayList<>();
-        this.persistentConnection = DatabaseConnection.getConnection();
+        this.connection = DatabaseConnection.getConnection(); // Open connection
         loadBackgroundImage();
         setupUI();
 
         frame.setContentPane(this);
         frame.revalidate();
         frame.repaint();
+    }
+
+    @Override
+    public void finalize() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close(); // Ensure connection is closed when the object is garbage collected
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadBackgroundImage() {
@@ -110,7 +121,7 @@ public class CreateWorkoutRoutine extends JPanel {
             String searchText = searchField.getText().trim();
             exerciseListModel.clear();
 
-            try (PreparedStatement statement = persistentConnection.prepareStatement("SELECT name FROM exercises WHERE name ILIKE ?")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT name FROM exercises WHERE name ILIKE ?")) {
                 statement.setString(1, "%" + searchText + "%");
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
@@ -167,17 +178,27 @@ public class CreateWorkoutRoutine extends JPanel {
             return;
         }
 
-        try (PreparedStatement checkStatement = persistentConnection.prepareStatement("SELECT COUNT(*) FROM routines WHERE name = ?")) {
-            checkStatement.setString(1, routineName);
-            ResultSet resultSet = checkStatement.executeQuery();
-            if (resultSet.next() && resultSet.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(frame, "A routine with this name already exists. Please choose a different name.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (!new File(FILE_NAME).exists()) {
+            try {
+                new File(FILE_NAME).createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "Failed to create file for saving routines.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        } catch (SQLException e) {
+        }
+
+        // Check for duplicate routine name
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("Routine Name: ") && line.substring(14).equalsIgnoreCase(routineName)) {
+                    JOptionPane.showMessageDialog(frame, "A routine with this name already exists. Please choose a different name.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Failed to check routine name.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
@@ -189,6 +210,7 @@ public class CreateWorkoutRoutine extends JPanel {
 
             JOptionPane.showMessageDialog(frame, "Routine saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
+            // Go back to Track Workouts screen
             new TrackWorkout(frame);
 
         } catch (IOException e) {

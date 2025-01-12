@@ -27,11 +27,10 @@ public class CreateWorkoutRoutine extends JPanel {
         frame.repaint();
     }
 
-    @Override
-    public void finalize() {
+    public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
-                connection.close(); // Ensure connection is closed when the object is garbage collected
+                connection.close(); // Explicitly close connection
             }
         } catch (SQLException e) {
             e.printStackTrace();

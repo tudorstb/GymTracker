@@ -1,8 +1,6 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,16 +54,21 @@ public class SelectWorkoutRoutine extends JPanel {
 
     private void setupUI() {
         setLayout(new BorderLayout());
+        setOpaque(false);
 
         // Title Label
         JLabel titleLabel = new JLabel("Select Workout Routine", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Cooper Black", Font.PLAIN, 24));
+        titleLabel.setForeground(Color.WHITE);
         add(titleLabel, BorderLayout.NORTH);
 
         // List of Routines
         JList<String> routineList = new JList<>(routines.toArray(new String[0]));
         routineList.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        routineList.setBackground(new Color(255, 255, 255, 200));
         JScrollPane listScrollPane = new JScrollPane(routineList);
+        listScrollPane.setOpaque(false);
+        listScrollPane.getViewport().setOpaque(false);
         add(listScrollPane, BorderLayout.CENTER);
 
         // Select Button
@@ -80,7 +83,6 @@ public class SelectWorkoutRoutine extends JPanel {
                 JOptionPane.showMessageDialog(frame, "Please select a routine.", "Warning", JOptionPane.WARNING_MESSAGE);
             }
         });
-        add(selectButton, BorderLayout.SOUTH);
 
         // Back Button
         JButton backButton = new JButton("Back");
@@ -88,7 +90,9 @@ public class SelectWorkoutRoutine extends JPanel {
         backButton.addActionListener(e -> {
             new TrackWorkout(frame);
         });
+
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.setOpaque(false);
         bottomPanel.add(selectButton);
         bottomPanel.add(backButton);
         add(bottomPanel, BorderLayout.SOUTH);

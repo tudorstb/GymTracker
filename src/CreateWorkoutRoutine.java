@@ -96,23 +96,27 @@ public class CreateWorkoutRoutine extends JPanel {
         searchDialog.add(searchPanel, BorderLayout.NORTH);
 
         DefaultListModel<String> exerciseListModel = new DefaultListModel<>();
-        try (PreparedStatement statement = persistentConnection.prepareStatement("SELECT name FROM exercises");
-             ResultSet resultSet = statement.executeQuery()) {
-
-            while (resultSet.next()) {
-                exerciseListModel.addElement(resultSet.getString("name"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(searchDialog, "Failed to load exercises from the database.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
         JList<String> exerciseList = new JList<>(exerciseListModel);
         exerciseList.setFont(new Font("SansSerif", Font.PLAIN, 16));
         exerciseList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane listScrollPane = new JScrollPane(exerciseList);
         searchDialog.add(listScrollPane, BorderLayout.CENTER);
+
+        searchButton.addActionListener(e -> {
+            String searchText = searchField.getText().trim();
+            exerciseListModel.clear();
+
+            try (PreparedStatement statement = persistentConnection.prepareStatement("SELECT name FROM exercises WHERE name ILIKE ?")) {
+                statement.setString(1, "%" + searchText + "%");
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    exerciseListModel.addElement(resultSet.getString("name"));
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(searchDialog, "Failed to search exercises.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         JButton selectButton = new JButton("Select");
         selectButton.setFont(new Font("Cooper Black", Font.BOLD, 16));

@@ -3,16 +3,11 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 
 public class TrackWorkout extends JPanel {
     private Image backgroundImage;
     private JFrame frame;
-    private String username;
 
-    // Constructor: accepts an existing JFrame to modify
     public TrackWorkout(JFrame existingFrame) {
         this.frame = existingFrame;
 
@@ -22,7 +17,6 @@ public class TrackWorkout extends JPanel {
             e.printStackTrace();
         }
 
-        loadUserData();
         createUIComponents();
 
         frame.setContentPane(this); // Set new content
@@ -38,60 +32,67 @@ public class TrackWorkout extends JPanel {
         }
     }
 
-    // Load username from name.txt
-    private void loadUserData() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
-            username = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Failed to load user data.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Create UI Components
     private void createUIComponents() {
         setLayout(new BorderLayout());
 
         // Title Label
-        JLabel trackWorkoutLabel = createLabel("Track Workout", 24, SwingConstants.CENTER);
-        add(trackWorkoutLabel, BorderLayout.NORTH);
+        JLabel titleLabel = createLabel("Track Workout", 24, SwingConstants.CENTER);
+        add(titleLabel, BorderLayout.NORTH);
 
-        // Placeholder Panel for Tracking Workouts
-        JPanel infoPanel = new JPanel(new GridBagLayout());
-        infoPanel.setOpaque(false);
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        buttonPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Add UI elements here
-        JLabel placeholderLabel = createLabel("Feature to log workouts will be implemented here.", 21, SwingConstants.LEFT);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        infoPanel.add(placeholderLabel, gbc);
+        // Create New Workout Routine Button
+        JButton createRoutineButton = createButton("Create New Workout Routine");
+        createRoutineButton.addActionListener(e -> {
+            new CreateWorkoutRoutine(frame);
+        });
 
-        add(infoPanel, BorderLayout.CENTER);
+        // Select Workout Routine Button
+        JButton selectRoutineButton = createButton("Select Workout Routine");
+        selectRoutineButton.addActionListener(e -> {
+           // new SelectWorkoutRoutine(frame);
+        });
+
+        // Start Custom Workout Button
+        JButton startCustomWorkoutButton = createButton("Start Custom Workout");
+        startCustomWorkoutButton.addActionListener(e -> {
+           // new StartCustomWorkout(frame);
+        });
+
+        // Add Buttons to Panel
+        gbc.gridy = 0;
+        buttonPanel.add(createRoutineButton, gbc);
+        gbc.gridy = 1;
+        buttonPanel.add(selectRoutineButton, gbc);
+        gbc.gridy = 2;
+        buttonPanel.add(startCustomWorkoutButton, gbc);
+
+        add(buttonPanel, BorderLayout.CENTER);
 
         // Back Button
         JButton backButton = createButton("Back");
         backButton.addActionListener(e -> {
-            MainMenuWindow mainMenu = new MainMenuWindow(frame); // Go back to Main Menu
+            MainMenuWindow mainMenu = new MainMenuWindow(frame);
             mainMenu.show();
         });
         add(backButton, BorderLayout.SOUTH);
     }
 
-    // Create Label Helper
     private JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
         label.setFont(new Font("Cooper Black", Font.PLAIN, fontSize));
         return label;
     }
 
-    // Create Button Helper
     private JButton createButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Cooper Black", Font.BOLD, 21));
-        button.setForeground(Color.BLACK); // Set button text color to black
+        button.setForeground(Color.BLACK);
         return button;
     }
 }

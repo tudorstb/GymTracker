@@ -55,7 +55,7 @@ public class TrackWorkout extends JPanel {
         // Select Workout Routine Button
         JButton selectRoutineButton = createButton("Select Workout Routine");
         selectRoutineButton.addActionListener(e -> {
-           // new SelectWorkoutRoutine(frame);
+            new SelectWorkoutRoutine(frame);
         });
 
         // Start Custom Workout Button

@@ -32,3 +32,8 @@ Incline Dumbbell Press
 Routine Name: h
 Dumbbell Fly
 ---
+Routine Name: test
+Cable Chest Fly
+Dumbbell Fly
+Barbell Bench Press
+---

@@ -78,7 +78,7 @@ public class SelectWorkoutRoutine extends JPanel {
             String selectedRoutine = routineList.getSelectedValue();
             if (selectedRoutine != null) {
                 saveSelectedRoutine(selectedRoutine);
-                //new DisplayRoutineExercises(frame, selectedRoutine);
+                new DisplayRoutineExercises(frame, selectedRoutine);
             } else {
                 JOptionPane.showMessageDialog(frame, "Please select a routine.", "Warning", JOptionPane.WARNING_MESSAGE);
             }

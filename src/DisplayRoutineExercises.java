@@ -48,10 +48,18 @@ public class DisplayRoutineExercises extends JPanel {
     }
 
     private void loadExercises() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("selected_routine.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("workout_routines.txt"))) {
             String line;
+            boolean routineFound = false;
+
             while ((line = reader.readLine()) != null) {
-                exercises.add(line);
+                if (line.startsWith("Routine Name:")) {
+                    routineFound = line.replace("Routine Name:", "").trim().equals(routineName);
+                } else if (routineFound && !line.equals("---") && !line.trim().isEmpty()) {
+                    exercises.add(line.trim());
+                } else if (line.equals("---")) {
+                    routineFound = false;
+                }
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Failed to load exercises for the selected routine.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -83,7 +91,7 @@ public class DisplayRoutineExercises extends JPanel {
             exercisePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.WHITE), exercise, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Cooper Black", Font.PLAIN, 18), Color.WHITE));
             exercisePanel.setOpaque(false);
 
-            String[] columnNames = {"Weight (kg)", "Repetitions"};
+            String[] columnNames = {"Weight (kg)", "Repetitions", "Notes"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
@@ -100,7 +108,7 @@ public class DisplayRoutineExercises extends JPanel {
             // Add "plus" button under the table
             JButton addRowButton = new JButton("+ Add Set");
             addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
-            addRowButton.addActionListener(e -> tableModel.addRow(new Object[]{"", ""}));
+            addRowButton.addActionListener(e -> tableModel.addRow(new Object[]{"", "", ""}));
             exercisePanel.add(addRowButton);
 
             centerPanel.add(exercisePanel);
@@ -131,9 +139,10 @@ public class DisplayRoutineExercises extends JPanel {
                             for (int row = 0; row < model.getRowCount(); row++) {
                                 String weight = (String) model.getValueAt(row, 0);
                                 String repetitions = (String) model.getValueAt(row, 1);
+                                String notes = (String) model.getValueAt(row, 2);
 
                                 if (weight != null && repetitions != null && !weight.isEmpty() && !repetitions.isEmpty()) {
-                                    saveToDatabase(exerciseName, weight, repetitions);
+                                    saveToDatabase(exerciseName, weight, repetitions, notes);
                                 }
                             }
                         }
@@ -148,13 +157,14 @@ public class DisplayRoutineExercises extends JPanel {
         }
     }
 
-    private void saveToDatabase(String exerciseName, String weight, String repetitions) {
-        String query = "INSERT INTO workout_entries (routine_name, exercise_name, weight, repetitions) VALUES (?, ?, ?, ?)";
+    private void saveToDatabase(String exerciseName, String weight, String repetitions, String notes) {
+        String query = "INSERT INTO workout_entries (routine_name, exercise_name, weight, repetitions, notes) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, routineName);
             statement.setString(2, exerciseName);
             statement.setString(3, weight);
             statement.setString(4, repetitions);
+            statement.setString(5, notes);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +22,14 @@ public class DisplayRoutineExercises extends JPanel {
     private List<String> exercises;
     private Connection connection;
     private Image backgroundImage;
+    private LocalDateTime startTime;
 
     public DisplayRoutineExercises(JFrame existingFrame, String routineName) {
         this.frame = existingFrame;
         this.routineName = routineName;
         this.exercises = new ArrayList<>();
         this.connection = DatabaseConnection.getConnection(); // Use persistent database connection
+        this.startTime = LocalDateTime.now(); // Start the timer when this class is initialized
         loadBackgroundImage();
         loadExercises();
         setupUI();
@@ -141,6 +145,26 @@ public class DisplayRoutineExercises extends JPanel {
         exerciseTable.setRowHeight(30);
         exerciseTable.getTableHeader().setReorderingAllowed(false);
 
+        // Input validation to allow only numbers for Weight and Repetitions
+        exerciseTable.getDefaultEditor(Object.class).addCellEditorListener(new javax.swing.event.CellEditorListener() {
+            @Override
+            public void editingStopped(javax.swing.event.ChangeEvent e) {
+                int editingColumn = exerciseTable.getEditingColumn();
+                if (editingColumn == 1 || editingColumn == 2) { // Weight and Repetitions columns
+                    String value = (String) exerciseTable.getValueAt(exerciseTable.getEditingRow(), editingColumn);
+                    if (!value.matches("\\d*")) {
+                        JOptionPane.showMessageDialog(frame, "Please enter only numeric values for Weight and Repetitions.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                        exerciseTable.setValueAt("", exerciseTable.getEditingRow(), editingColumn);
+                    }
+                }
+            }
+
+            @Override
+            public void editingCanceled(javax.swing.event.ChangeEvent e) {
+                // No action needed
+            }
+        });
+
         JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
         exerciseTable.setPreferredScrollableViewportSize(
                 new Dimension(
@@ -184,6 +208,30 @@ public class DisplayRoutineExercises extends JPanel {
 
     private void saveWorkout(JPanel centerPanel) {
         try {
+            String workoutInsertQuery = "INSERT INTO workouts (user_id, date, duration, notes) VALUES ((SELECT user_id FROM users WHERE username = ?), CURRENT_DATE, CAST(? AS INTERVAL), ?) RETURNING workout_id";
+            String workoutExercisesInsertQuery = "INSERT INTO workout_exercises (workout_id, exercise_id, sets, reps, weight) VALUES (?, (SELECT exercise_id FROM exercises WHERE name = ?), ?, ?, ?)";
+
+            connection.setAutoCommit(false);
+
+            int workoutId;
+            Duration duration = Duration.between(startTime, LocalDateTime.now()); // Calculate duration
+            String intervalDuration = String.format("%d:%d:%d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
+            try (PreparedStatement workoutStatement = connection.prepareStatement(workoutInsertQuery)) {
+                String username;
+                try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
+                    username = reader.readLine();
+                }
+                workoutStatement.setString(1, username);
+                workoutStatement.setString(2, intervalDuration); // Send as INTERVAL
+                workoutStatement.setString(3, "Workout notes"); // Placeholder for workout notes
+                ResultSet rs = workoutStatement.executeQuery();
+                if (rs.next()) {
+                    workoutId = rs.getInt("workout_id");
+                } else {
+                    throw new SQLException("Failed to retrieve workout_id.");
+                }
+            }
+
             for (Component component : centerPanel.getComponents()) {
                 if (component instanceof JPanel) {
                     JPanel exercisePanel = (JPanel) component;
@@ -200,10 +248,18 @@ public class DisplayRoutineExercises extends JPanel {
                             for (int row = 0; row < model.getRowCount(); row++) {
                                 String weight = (String) model.getValueAt(row, 1);
                                 String repetitions = (String) model.getValueAt(row, 2);
-                                String notes = (String) model.getValueAt(row, 3);
-
-                                if (weight != null && repetitions != null && !weight.isEmpty() && !repetitions.isEmpty()) {
-                                    saveToDatabase(exerciseName, weight, repetitions, notes);
+                                if (weight == null || weight.isEmpty() || repetitions == null || repetitions.isEmpty()) {
+                                    JOptionPane.showMessageDialog(frame, "Please fill out all fields before saving.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                                    connection.rollback();
+                                    return;
+                                }
+                                try (PreparedStatement exerciseStatement = connection.prepareStatement(workoutExercisesInsertQuery)) {
+                                    exerciseStatement.setInt(1, workoutId);
+                                    exerciseStatement.setString(2, exerciseName);
+                                    exerciseStatement.setInt(3, 1); // Assuming 1 set as a placeholder
+                                    exerciseStatement.setInt(4, Integer.parseInt(repetitions));
+                                    exerciseStatement.setDouble(5, Double.parseDouble(weight));
+                                    exerciseStatement.executeUpdate();
                                 }
                             }
                         }
@@ -211,25 +267,23 @@ public class DisplayRoutineExercises extends JPanel {
                 }
             }
 
+            connection.commit();
             JOptionPane.showMessageDialog(frame, "Workout saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (Exception e) {
+            new MainMenuWindow(frame).show(); // Redirect to Main Menu
+        } catch (SQLException | IOException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Failed to save workout.", "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-
-    private void saveToDatabase(String exerciseName, String weight, String repetitions, String notes) {
-        String query = "INSERT INTO workout_entries (routine_name, exercise_name, weight, repetitions, notes) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, routineName);
-            statement.setString(2, exerciseName);
-            statement.setString(3, weight);
-            statement.setString(4, repetitions);
-            statement.setString(5, notes);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Failed to save entry to database.", "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

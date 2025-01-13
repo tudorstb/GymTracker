@@ -88,60 +88,25 @@ public class DisplayRoutineExercises extends JPanel {
         add(titleLabel, BorderLayout.NORTH);
 
         // Center panel for tables
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
         JScrollPane scrollPane = new JScrollPane(centerPanel);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
         // Create a table for each exercise
         for (String exercise : exercises) {
-            JPanel exercisePanel = new JPanel();
-            exercisePanel.setLayout(new BoxLayout(exercisePanel, BoxLayout.Y_AXIS));
-            exercisePanel.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(Color.WHITE),
-                    exercise,
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION,
-                    new Font("Cooper Black", Font.PLAIN, 18),
-                    Color.WHITE
-            ));
-            exercisePanel.setOpaque(false);
-
-            String[] columnNames = {"Set Number", "Weight (kg)", "Repetitions", "Notes"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return column != 0; // Disable editing for set number
-                }
-            };
-            addRow(tableModel); // Start with one row
-
-            JTable exerciseTable = new JTable(tableModel);
-            exerciseTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
-            exerciseTable.setRowHeight(30);
-            exerciseTable.getTableHeader().setReorderingAllowed(false);
-
-            JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
-            exercisePanel.add(tableScrollPane);
-
-            // Add "Add Set" button
-            JButton addRowButton = new JButton("+ Add Set");
-            addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
-            addRowButton.addActionListener(e -> {
-                addRow(tableModel);
-                exercisePanel.revalidate();
-                exercisePanel.repaint();
-            });
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            buttonPanel.setOpaque(false);
-            buttonPanel.add(addRowButton);
-            exercisePanel.add(buttonPanel);
-
-            centerPanel.add(exercisePanel);
+            JPanel exercisePanel = createExercisePanel(exercise);
+            centerPanel.add(exercisePanel, gbc);
+            gbc.gridy++;
         }
 
         // Save Button
@@ -149,6 +114,67 @@ public class DisplayRoutineExercises extends JPanel {
         saveButton.setFont(new Font("Cooper Black", Font.BOLD, 18));
         saveButton.addActionListener(e -> saveWorkout(centerPanel));
         add(saveButton, BorderLayout.SOUTH);
+    }
+
+    private JPanel createExercisePanel(String exercise) {
+        JPanel exercisePanel = new JPanel(new BorderLayout());
+        exercisePanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.WHITE),
+                exercise,
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("Cooper Black", Font.PLAIN, 18),
+                Color.WHITE
+        ));
+        exercisePanel.setOpaque(false);
+
+        String[] columnNames = {"Set Number", "Weight (kg)", "Repetitions", "Notes"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column != 0; // Disable editing for set number
+            }
+        };
+
+        JTable exerciseTable = new JTable(tableModel);
+        exerciseTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        exerciseTable.setRowHeight(30);
+        exerciseTable.getTableHeader().setReorderingAllowed(false);
+
+        JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
+        exerciseTable.setPreferredScrollableViewportSize(
+                new Dimension(
+                        exerciseTable.getPreferredSize().width,
+                        exerciseTable.getRowHeight() * Math.max(1, tableModel.getRowCount())
+                )
+        );
+
+        exercisePanel.add(tableScrollPane, BorderLayout.CENTER);
+
+        // Add "Add Set" button
+        JButton addRowButton = new JButton("+ Add Set");
+        addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
+        addRowButton.addActionListener(e -> {
+            addRow(tableModel);
+            exerciseTable.setPreferredScrollableViewportSize(
+                    new Dimension(
+                            exerciseTable.getPreferredSize().width,
+                            exerciseTable.getRowHeight() * tableModel.getRowCount()
+                    )
+            );
+            exercisePanel.revalidate();
+            exercisePanel.repaint();
+        });
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(addRowButton);
+        exercisePanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Start with one row
+        addRow(tableModel);
+
+        return exercisePanel;
     }
 
     private void addRow(DefaultTableModel tableModel) {

@@ -2,6 +2,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.*;
 import java.sql.Connection;
@@ -91,32 +92,48 @@ public class DisplayRoutineExercises extends JPanel {
             exercisePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.WHITE), exercise, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Cooper Black", Font.PLAIN, 18), Color.WHITE));
             exercisePanel.setOpaque(false);
 
-            String[] columnNames = {"Weight (kg)", "Repetitions", "Notes"};
+            String[] columnNames = {"Set Number", "Weight (kg)", "Repetitions", "Notes", "Delete"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return true;
+                    return column != 0 && column != 4; // Disable editing for row numbers and delete button
                 }
             };
-            tableModel.addRow(new Object[]{"", "", ""}); // Start with one empty row
+            addRow(tableModel); // Start with one row
+
             JTable exerciseTable = new JTable(tableModel);
             exerciseTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
             exerciseTable.setRowHeight(30);
             exerciseTable.getTableHeader().setReorderingAllowed(false);
 
-            // Adjust table size to content
-            exerciseTable.setPreferredScrollableViewportSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount()));
+            // Ensure proper resizing
+            exerciseTable.setPreferredScrollableViewportSize(new Dimension(500, exerciseTable.getRowHeight() * tableModel.getRowCount()));
+
+            // Add delete button functionality
+            exerciseTable.getColumn("Delete").setCellRenderer(new TableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    JButton deleteButton = new JButton("Delete");
+                    deleteButton.addActionListener(e -> {
+                        tableModel.removeRow(row);
+                        updateRowNumbers(tableModel);
+                        exerciseTable.setPreferredScrollableViewportSize(new Dimension(500, exerciseTable.getRowHeight() * tableModel.getRowCount()));
+                        exercisePanel.revalidate();
+                        exercisePanel.repaint();
+                    });
+                    return deleteButton;
+                }
+            });
+
             JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
-            tableScrollPane.setMaximumSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount() + 40));
             exercisePanel.add(tableScrollPane);
 
-            // Adjust layout for "plus" button to minimize space
+            // Add "Add Set" button
             JButton addRowButton = new JButton("+ Add Set");
             addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
             addRowButton.addActionListener(e -> {
-                tableModel.addRow(new Object[]{"", "", ""});
-                exerciseTable.setPreferredScrollableViewportSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount()));
-                tableScrollPane.setMaximumSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount() + 40));
+                addRow(tableModel);
+                exerciseTable.setPreferredScrollableViewportSize(new Dimension(500, exerciseTable.getRowHeight() * tableModel.getRowCount()));
                 exercisePanel.revalidate();
                 exercisePanel.repaint();
             });
@@ -136,6 +153,17 @@ public class DisplayRoutineExercises extends JPanel {
         add(saveButton, BorderLayout.SOUTH);
     }
 
+    private void addRow(DefaultTableModel tableModel) {
+        int rowNumber = tableModel.getRowCount() + 1;
+        tableModel.addRow(new Object[]{rowNumber, "", "", "", "Delete"});
+    }
+
+    private void updateRowNumbers(DefaultTableModel tableModel) {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            tableModel.setValueAt(i + 1, i, 0);
+        }
+    }
+
     private void saveWorkout(JPanel centerPanel) {
         try {
             for (Component component : centerPanel.getComponents()) {
@@ -152,9 +180,9 @@ public class DisplayRoutineExercises extends JPanel {
                             DefaultTableModel model = (DefaultTableModel) table.getModel();
 
                             for (int row = 0; row < model.getRowCount(); row++) {
-                                String weight = (String) model.getValueAt(row, 0);
-                                String repetitions = (String) model.getValueAt(row, 1);
-                                String notes = (String) model.getValueAt(row, 2);
+                                String weight = (String) model.getValueAt(row, 1);
+                                String repetitions = (String) model.getValueAt(row, 2);
+                                String notes = (String) model.getValueAt(row, 3);
 
                                 if (weight != null && repetitions != null && !weight.isEmpty() && !repetitions.isEmpty()) {
                                     saveToDatabase(exerciseName, weight, repetitions, notes);

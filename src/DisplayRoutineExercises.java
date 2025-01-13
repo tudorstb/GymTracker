@@ -2,11 +2,14 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,7 @@ public class DisplayRoutineExercises extends JPanel {
         this.frame = existingFrame;
         this.routineName = routineName;
         this.exercises = new ArrayList<>();
-        this.connection = DatabaseConnection.getConnection();
+        this.connection = DatabaseConnection.getConnection(); // Use persistent database connection
         loadBackgroundImage();
         loadExercises();
         setupUI();
@@ -49,21 +52,29 @@ public class DisplayRoutineExercises extends JPanel {
     }
 
     private void loadExercises() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("workout_routines.txt"))) {
-            String line;
-            boolean routineFound = false;
+        String query = "SELECT exercises FROM routines WHERE username = ? AND routine_name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            String username;
+            try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
+                username = reader.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "Failed to load username.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("Routine Name:")) {
-                    routineFound = line.replace("Routine Name:", "").trim().equals(routineName);
-                } else if (routineFound && !line.equals("---") && !line.trim().isEmpty()) {
-                    exercises.add(line.trim());
-                } else if (line.equals("---")) {
-                    routineFound = false;
+            statement.setString(1, username);
+            statement.setString(2, routineName);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String exercisesString = resultSet.getString("exercises");
+                for (String exercise : exercisesString.split(",")) {
+                    exercises.add(exercise.trim());
                 }
             }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Failed to load exercises for the selected routine.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to load exercises from database.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -89,14 +100,21 @@ public class DisplayRoutineExercises extends JPanel {
         for (String exercise : exercises) {
             JPanel exercisePanel = new JPanel();
             exercisePanel.setLayout(new BoxLayout(exercisePanel, BoxLayout.Y_AXIS));
-            exercisePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.WHITE), exercise, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Cooper Black", Font.PLAIN, 18), Color.WHITE));
+            exercisePanel.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createLineBorder(Color.WHITE),
+                    exercise,
+                    TitledBorder.DEFAULT_JUSTIFICATION,
+                    TitledBorder.DEFAULT_POSITION,
+                    new Font("Cooper Black", Font.PLAIN, 18),
+                    Color.WHITE
+            ));
             exercisePanel.setOpaque(false);
 
-            String[] columnNames = {"Set Number", "Weight (kg)", "Repetitions", "Notes", "Delete"};
+            String[] columnNames = {"Set Number", "Weight (kg)", "Repetitions", "Notes"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column != 0 && column != 4; // Disable editing for row numbers and delete button
+                    return column != 0; // Disable editing for set number
                 }
             };
             addRow(tableModel); // Start with one row
@@ -106,25 +124,6 @@ public class DisplayRoutineExercises extends JPanel {
             exerciseTable.setRowHeight(30);
             exerciseTable.getTableHeader().setReorderingAllowed(false);
 
-            // Ensure proper resizing
-            exerciseTable.setPreferredScrollableViewportSize(new Dimension(500, exerciseTable.getRowHeight() * tableModel.getRowCount()));
-
-            // Add delete button functionality
-            exerciseTable.getColumn("Delete").setCellRenderer(new TableCellRenderer() {
-                @Override
-                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                    JButton deleteButton = new JButton("Delete");
-                    deleteButton.addActionListener(e -> {
-                        tableModel.removeRow(row);
-                        updateRowNumbers(tableModel);
-                        exerciseTable.setPreferredScrollableViewportSize(new Dimension(500, exerciseTable.getRowHeight() * tableModel.getRowCount()));
-                        exercisePanel.revalidate();
-                        exercisePanel.repaint();
-                    });
-                    return deleteButton;
-                }
-            });
-
             JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
             exercisePanel.add(tableScrollPane);
 
@@ -133,7 +132,6 @@ public class DisplayRoutineExercises extends JPanel {
             addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
             addRowButton.addActionListener(e -> {
                 addRow(tableModel);
-                exerciseTable.setPreferredScrollableViewportSize(new Dimension(500, exerciseTable.getRowHeight() * tableModel.getRowCount()));
                 exercisePanel.revalidate();
                 exercisePanel.repaint();
             });
@@ -155,13 +153,7 @@ public class DisplayRoutineExercises extends JPanel {
 
     private void addRow(DefaultTableModel tableModel) {
         int rowNumber = tableModel.getRowCount() + 1;
-        tableModel.addRow(new Object[]{rowNumber, "", "", "", "Delete"});
-    }
-
-    private void updateRowNumbers(DefaultTableModel tableModel) {
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            tableModel.setValueAt(i + 1, i, 0);
-        }
+        tableModel.addRow(new Object[]{rowNumber, "", "", ""});
     }
 
     private void saveWorkout(JPanel centerPanel) {

@@ -2,6 +2,10 @@ import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,10 +13,12 @@ public class SelectWorkoutRoutine extends JPanel {
     private JFrame frame;
     private List<String> routines;
     private Image backgroundImage;
+    private Connection connection;
 
     public SelectWorkoutRoutine(JFrame existingFrame) {
         this.frame = existingFrame;
-        routines = new ArrayList<>();
+        this.routines = new ArrayList<>();
+        this.connection = DatabaseConnection.getConnection(); // Establish database connection
         loadBackgroundImage();
         loadRoutines();
         setupUI();
@@ -39,16 +45,27 @@ public class SelectWorkoutRoutine extends JPanel {
     }
 
     private void loadRoutines() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("workout_routines.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("Routine Name:")) {
-                    String routineName = line.replace("Routine Name:", "").trim();
-                    routines.add(routineName);
-                }
-            }
+        String username;
+        // Load the logged-in user's username from a local file
+        try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
+            username = reader.readLine();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Failed to load workout routines.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to load username.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Fetch routines for the current user from the database
+        String query = "SELECT routine_name FROM routines WHERE username = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                routines.add(resultSet.getString("routine_name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to load workout routines from database.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

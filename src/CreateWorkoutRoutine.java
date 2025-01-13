@@ -177,44 +177,28 @@ public class CreateWorkoutRoutine extends JPanel {
             return;
         }
 
-        if (!new File(FILE_NAME).exists()) {
-            try {
-                new File(FILE_NAME).createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(frame, "Failed to create file for saving routines.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-
-        // Check for duplicate routine name
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("Routine Name: ") && line.substring(14).equalsIgnoreCase(routineName)) {
-                    JOptionPane.showMessageDialog(frame, "A routine with this name already exists. Please choose a different name.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
+        String username;
+        try (BufferedReader reader = new BufferedReader(new FileReader("name.txt"))) {
+            username = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Failed to load username.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
-            writer.write("Routine Name: " + routineName + "\n");
-            for (String exercise : selectedExercises) {
-                writer.write(exercise + "\n");
-            }
-            writer.write("---\n");
+        String query = "INSERT INTO routines (username, routine_name, exercises) VALUES (?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            statement.setString(2, routineName);
+            statement.setString(3, String.join(",", selectedExercises));
+            statement.executeUpdate();
 
             JOptionPane.showMessageDialog(frame, "Routine saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-            // Go back to Track Workouts screen
             new TrackWorkout(frame);
-
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Failed to save routine.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Failed to save routine to database.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 }

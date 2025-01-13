@@ -98,18 +98,33 @@ public class DisplayRoutineExercises extends JPanel {
                     return true;
                 }
             };
+            tableModel.addRow(new Object[]{"", "", ""}); // Start with one empty row
             JTable exerciseTable = new JTable(tableModel);
             exerciseTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
             exerciseTable.setRowHeight(30);
             exerciseTable.getTableHeader().setReorderingAllowed(false);
+
+            // Adjust table size to content
+            exerciseTable.setPreferredScrollableViewportSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount()));
             JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
+            tableScrollPane.setMaximumSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount() + 40));
             exercisePanel.add(tableScrollPane);
 
-            // Add "plus" button under the table
+            // Adjust layout for "plus" button to minimize space
             JButton addRowButton = new JButton("+ Add Set");
             addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
-            addRowButton.addActionListener(e -> tableModel.addRow(new Object[]{"", "", ""}));
-            exercisePanel.add(addRowButton);
+            addRowButton.addActionListener(e -> {
+                tableModel.addRow(new Object[]{"", "", ""});
+                exerciseTable.setPreferredScrollableViewportSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount()));
+                tableScrollPane.setMaximumSize(new Dimension(400, exerciseTable.getRowHeight() * tableModel.getRowCount() + 40));
+                exercisePanel.revalidate();
+                exercisePanel.repaint();
+            });
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            buttonPanel.setOpaque(false);
+            buttonPanel.add(addRowButton);
+            exercisePanel.add(buttonPanel);
 
             centerPanel.add(exercisePanel);
         }

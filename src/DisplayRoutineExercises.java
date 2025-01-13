@@ -1,9 +1,8 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,18 +15,36 @@ public class DisplayRoutineExercises extends JPanel {
     private String routineName;
     private List<String> exercises;
     private Connection connection;
+    private Image backgroundImage;
 
     public DisplayRoutineExercises(JFrame existingFrame, String routineName) {
         this.frame = existingFrame;
         this.routineName = routineName;
         this.exercises = new ArrayList<>();
         this.connection = DatabaseConnection.getConnection();
+        loadBackgroundImage();
         loadExercises();
         setupUI();
 
         frame.setContentPane(this);
         frame.revalidate();
         frame.repaint();
+    }
+
+    private void loadBackgroundImage() {
+        try {
+            backgroundImage = ImageIO.read(new File("background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
     private void loadExercises() {
@@ -47,33 +64,44 @@ public class DisplayRoutineExercises extends JPanel {
         // Title
         JLabel titleLabel = new JLabel(routineName, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Cooper Black", Font.PLAIN, 24));
+        titleLabel.setForeground(Color.WHITE);
         add(titleLabel, BorderLayout.NORTH);
 
         // Center panel for tables
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setOpaque(false);
         JScrollPane scrollPane = new JScrollPane(centerPanel);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
 
         // Create a table for each exercise
         for (String exercise : exercises) {
-            JPanel exercisePanel = new JPanel(new BorderLayout());
-            TitledBorder border = BorderFactory.createTitledBorder(exercise);
-            exercisePanel.setBorder(border);
+            JPanel exercisePanel = new JPanel();
+            exercisePanel.setLayout(new BoxLayout(exercisePanel, BoxLayout.Y_AXIS));
+            exercisePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.WHITE), exercise, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Cooper Black", Font.PLAIN, 18), Color.WHITE));
+            exercisePanel.setOpaque(false);
 
             String[] columnNames = {"Weight (kg)", "Repetitions"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return true;
+                }
+            };
             JTable exerciseTable = new JTable(tableModel);
             exerciseTable.setFont(new Font("SansSerif", Font.PLAIN, 16));
             exerciseTable.setRowHeight(30);
+            exerciseTable.getTableHeader().setReorderingAllowed(false);
             JScrollPane tableScrollPane = new JScrollPane(exerciseTable);
-            exercisePanel.add(tableScrollPane, BorderLayout.CENTER);
+            exercisePanel.add(tableScrollPane);
 
-            // Add "plus" button to add rows
+            // Add "plus" button under the table
             JButton addRowButton = new JButton("+ Add Set");
             addRowButton.setFont(new Font("Cooper Black", Font.BOLD, 16));
             addRowButton.addActionListener(e -> tableModel.addRow(new Object[]{"", ""}));
-            exercisePanel.add(addRowButton, BorderLayout.SOUTH);
+            exercisePanel.add(addRowButton);
 
             centerPanel.add(exercisePanel);
         }

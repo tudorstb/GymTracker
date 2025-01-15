@@ -16,7 +16,7 @@ public class Statistics extends JPanel {
     private Image backgroundImage;
     private JFrame frame;
     private String username;
-    private List<String> statistics; // List to store statistics :Total Workouts and Average Workout Duration
+    private List<String> statistics; // List to store statistics: Total Workouts and Average Workout Duration
 
     public Statistics(JFrame existingFrame) {
         this.frame = existingFrame;
@@ -28,7 +28,7 @@ public class Statistics extends JPanel {
         }
 
         loadUserData();
-        fetchStatistics();
+        fetchStatisticsWithThreads();
         createUIComponents();
 
         frame.setContentPane(this); // Set new content
@@ -55,34 +55,51 @@ public class Statistics extends JPanel {
         }
     }
 
-    // Fetch statistics from the database using the persistent connection
-    private void fetchStatistics() {
+    // Fetch statistics using threads
+    private void fetchStatisticsWithThreads() {
         statistics = new ArrayList<>();
-        Connection connection = DatabaseConnection.getConnection(); // Retrieve the persistent connection
 
-        // Get total workouts
-        String workoutCountQuery = "SELECT COUNT(*) FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-        try (PreparedStatement statement = connection.prepareStatement(workoutCountQuery)) {
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                statistics.add("Total Workouts: " + resultSet.getInt(1));
+        Thread totalWorkoutsThread = new Thread(() -> {
+            Connection connection = DatabaseConnection.getConnection();
+            String workoutCountQuery = "SELECT COUNT(*) FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+            try (PreparedStatement statement = connection.prepareStatement(workoutCountQuery)) {
+                statement.setString(1, username);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    synchronized (statistics) {
+                        statistics.add("Total Workouts: " + resultSet.getInt(1));
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        });
 
-        // Get average workout duration
-        String averageDurationQuery = "SELECT AVG(EXTRACT(EPOCH FROM duration)) / 60 FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
-        try (PreparedStatement statement = connection.prepareStatement(averageDurationQuery)) {
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                double averageWorkoutDuration = resultSet.getDouble(1);
-                statistics.add("Average Workout Duration: " +
-                        (averageWorkoutDuration > 0 ? String.format("%.2f minutes", averageWorkoutDuration) : "No workouts yet"));
+        Thread averageDurationThread = new Thread(() -> {
+            Connection connection = DatabaseConnection.getConnection();
+            String averageDurationQuery = "SELECT AVG(EXTRACT(EPOCH FROM duration)) / 60 FROM workouts WHERE user_id = (SELECT user_id FROM users WHERE username = ?)";
+            try (PreparedStatement statement = connection.prepareStatement(averageDurationQuery)) {
+                statement.setString(1, username);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    double averageWorkoutDuration = resultSet.getDouble(1);
+                    synchronized (statistics) {
+                        statistics.add("Average Workout Duration: " +
+                                (averageWorkoutDuration > 0 ? String.format("%.2f minutes", averageWorkoutDuration) : "No workouts yet"));
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
+        });
+
+        totalWorkoutsThread.start();
+        averageDurationThread.start();
+
+        try {
+            totalWorkoutsThread.join();
+            averageDurationThread.join();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
